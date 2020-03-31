@@ -18,27 +18,27 @@ class MinCostFlow {
 //	Vector<Integer> nodesToQ;
 	int[] nodesToQ;
 	
-	@Deprecated
-	long compute(long[] ea, List<Edge>[] ca, List<Edge0>[] xa) {
-		
-		Vector<Long> e = new Vector<>();
-		for (long val : ea) {
-			e.add(val);
-		}
-		
-		Vector<List<Edge>> c = new Vector<List<Edge>>();
-		for (List<Edge> le : ca) {
-			c.add(le);
-		}
-		
-		Vector<List<Edge0>> x = new Vector<List<Edge0>>();
-		for (List<Edge0> le : xa) {
-			x.add(le);
-		}
-		
-//		return compute(e, c, x);
-		return compute(ea, ca, x);
-	}
+//	@Deprecated
+//	long compute(long[] ea, List<Edge>[] ca, List<Edge0>[] xa) {
+//		
+//		Vector<Long> e = new Vector<>();
+//		for (long val : ea) {
+//			e.add(val);
+//		}
+//		
+//		Vector<List<Edge>> c = new Vector<List<Edge>>();
+//		for (List<Edge> le : ca) {
+//			c.add(le);
+//		}
+//		
+//		Vector<List<Edge0>> x = new Vector<List<Edge0>>();
+//		for (List<Edge0> le : xa) {
+//			x.add(le);
+//		}
+//		
+////		return compute(e, c, x);
+//		return compute(ea, ca, xa);
+//	}
 	
 	
 
@@ -46,11 +46,11 @@ class MinCostFlow {
 	// c[i] - edges that goes from node i. first is the second nod
 	// x - the flow is returned in it
 //	long compute(Vector<Long> e, Vector<List<Edge>> c, Vector<List<Edge0>> x) {
-	long compute(long[] e, List<Edge>[] c, Vector<List<Edge0>> x) {
+	long compute(long[] e, List<Edge>[] c, List<Edge0>[] x) {
 //		assert (e.size() == c.size());
 		assert (e.length == c.length);
 //		assert (x.size() == c.size());
-		assert (x.size() == c.length);
+		assert (x.length == c.length);
 
 //		numNodes = e.size();
 		numNodes = e.length;
@@ -63,8 +63,10 @@ class MinCostFlow {
 		// init flow
 		for (int from = 0; from < numNodes; from++) {
 			for (Edge it : c[from]) {	// for (Edge it : c.get(from)) {
-				x.get(from).add(new Edge0(it.to, it.cost, 0));
-				x.get(it.to).add(new Edge0(from, -it.cost, 0));
+//				x.get(from).add(new Edge0(it.to, it.cost, 0));
+				x[from].add(new Edge0(it.to, it.cost, 0));
+//				x.get(it.to).add(new Edge0(from, -it.cost, 0));
+				x[it.to].add(new Edge0(from, -it.cost, 0));
 			}
 		}
 
@@ -189,10 +191,11 @@ class MinCostFlow {
 
 				// TODO - might do here O(n) can be done in O(1)
 				int itx = 0;
-				while (x.get(from).get(itx).to != to) {
+				while (x[from].get(itx).to != to) {	// while (x.get(from).get(itx).to != to) {
 					itx++;
 				}
-				x.get(from).get(itx).flow += delta;
+//				x.get(from).get(itx).flow += delta;
+				x[from].get(itx).flow += delta;
 
 				// update residual for backward edges
 				int itccb = 0;
@@ -239,7 +242,7 @@ class MinCostFlow {
 		// compute distance from x
 		long dist = 0;
 		for (int from = 0; from < numNodes; from++) {
-			for (Edge0 it : x.get(from)) {
+			for (Edge0 it : x[from]) {	// for (Edge0 it : x.get(from)) {
 				dist += (it.cost * it.flow);
 			}
 		}
