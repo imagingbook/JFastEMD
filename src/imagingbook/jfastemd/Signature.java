@@ -3,36 +3,33 @@ package imagingbook.jfastemd;
 
 /**
  * @author Telmo Menezes (telmo@telmomenezes.com)
+ * @author WILBUR (modified)
+ * 
+ * TODO: make generic!
  *
  */
 public class Signature {
 	
-    private int numberOfFeatures;
-    private Feature[] features;
-    private double[] weights;
+    private final Feature[] features;
+    private final double[] weights;
     
-    public int getNumberOfFeatures() {
-        return numberOfFeatures;
+    public Signature(Feature[] features, double[] weights) {
+    	if (features.length != weights.length)
+    		throw new IllegalArgumentException("Must be of same length: features, weights");
+    	this.features = features;
+    	this.weights = weights;
     }
     
-    public void setNumberOfFeatures(int numberOfFeatures) {
-        this.numberOfFeatures = numberOfFeatures;
+    public int getNumberOfFeatures() {
+    	return features.length;
     }
 
     public Feature[] getFeatures() {
         return features;
     }
 
-    public void setFeatures(Feature[] features) {
-        this.features = features;
-    }
-
     public double[] getWeights() {
         return weights;
     }
 
-    public void setWeights(double[] weights) {
-        this.weights = weights;
-    }
-    
 }

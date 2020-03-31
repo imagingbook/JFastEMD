@@ -37,21 +37,13 @@ public class Test {
             }
         }
 
-        Signature signature = new Signature();
-        signature.setNumberOfFeatures(n);
-        signature.setFeatures(features);
-        signature.setWeights(weights);
-
-        return signature;
+        return new Signature(features, weights);
     }
 
     static double emdDist(double[] map1, double[] map2, int bins) {
         Signature sig1 = getSignature(map1, bins);
         Signature sig2 = getSignature(map2, bins);
-
-        double dist = new JFastEMD(sig1, sig2, -1).getDistance();
-
-        return dist;
+        return new JFastEMD(sig1, sig2, -1).getDistance();
     }
     
     // ----------------------------------------------------------------------------------------------------------
