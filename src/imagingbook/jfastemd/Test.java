@@ -10,8 +10,7 @@ public class Test {
         return map[(y * bins) + x];
     }
 
-    static Signature getSignature(double[] map, int bins)
-    {
+    static Signature getSignature(double[] map, int bins) {
         // find number of entries in the sparse matrix
         int n = 0;
         for (int x = 0; x < bins; x++) {
@@ -46,12 +45,11 @@ public class Test {
         return signature;
     }
 
-    static double emdDist(double[] map1, double[] map2, int bins)
-    {
+    static double emdDist(double[] map1, double[] map2, int bins) {
         Signature sig1 = getSignature(map1, bins);
         Signature sig2 = getSignature(map2, bins);
 
-        double dist = new JFastEMD().distance(sig1, sig2, -1);
+        double dist = new JFastEMD(sig1, sig2, -1).getDistance();
 
         return dist;
     }

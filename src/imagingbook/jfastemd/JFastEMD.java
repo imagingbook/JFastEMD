@@ -54,17 +54,23 @@ import imagingbook.jfastemd.Edges.Edge0;
  *
  */
 public class JFastEMD {
-
-
 	
-	public double distance(Signature signature1, Signature signature2, double extraMassPenalty) {
-
-		final int n1 = signature1.getNumberOfFeatures();
-		final int n2 = signature2.getNumberOfFeatures();
-		
-		double[] P = new double[n1 + n2];
-		double[] Q = new double[n1 + n2];
-
+	private final int n1, n2;
+	private final double[] P, Q;
+	private final double[][] C;
+	private final double extraMassPenalty;
+	
+	public JFastEMD(Signature signature1, Signature signature2, double extraMassPenalty) {
+		this.n1 = signature1.getNumberOfFeatures();
+		this.n2 = signature2.getNumberOfFeatures();
+		this.P = new double[n1 + n2];
+		this.Q = new double[n1 + n2];
+		this.C = new double[P.length][P.length];
+		this.extraMassPenalty = extraMassPenalty;
+		init(signature1, signature2);
+	}
+	
+	private void init(Signature signature1, Signature signature2) {
 		for (int i = 0; i < n1; i++) {
 			P[i] = signature1.getWeights()[i];
 		}
@@ -72,20 +78,49 @@ public class JFastEMD {
 		for (int j = 0; j < n2; j++) {
 			Q[j + n1] = signature2.getWeights()[j];
 		}
-
-		double[][] C = new double[P.length][P.length];
 		
-		Feature[] features1 = signature1.getFeatures();
-		Feature[] features2 = signature2.getFeatures();
+		Feature[] f1 = signature1.getFeatures();
+		Feature[] f2 = signature2.getFeatures();
 		
 		for (int i = 0; i < n1; i++) {
 			for (int j = 0; j < n2; j++) {
-				double dist = features1[i].groundDist(features2[j]);
+				double dist = f1[i].groundDist(f2[j]);
 				assert (dist >= 0);
 				C[i][j + n1] = dist;
 				C[j + n1][i] = dist;
 			}
 		}
+	}
+
+	public double getDistance() {
+
+//		final int n1 = signature1.getNumberOfFeatures();
+//		final int n2 = signature2.getNumberOfFeatures();
+		
+//		double[] P = new double[n1 + n2];
+//		double[] Q = new double[n1 + n2];
+
+//		for (int i = 0; i < n1; i++) {
+//			P[i] = signature1.getWeights()[i];
+//		}
+//
+//		for (int j = 0; j < n2; j++) {
+//			Q[j + n1] = signature2.getWeights()[j];
+//		}
+//
+//		double[][] C = new double[P.length][P.length];
+//		
+//		Feature[] features1 = signature1.getFeatures();
+//		Feature[] features2 = signature2.getFeatures();
+//		
+//		for (int i = 0; i < n1; i++) {
+//			for (int j = 0; j < n2; j++) {
+//				double dist = features1[i].groundDist(features2[j]);
+//				assert (dist >= 0);
+//				C[i][j + n1] = dist;
+//				C[j + n1][i] = dist;
+//			}
+//		}
 
 		return emdHat(P, Q, C, extraMassPenalty);
 	}
@@ -261,7 +296,7 @@ public class JFastEMD {
 		}
 
 		@SuppressWarnings("unchecked")
-		List<Edge>[] cc = new LinkedList[bb.length];
+		List<Edge>[] cc = new List[bb.length];
 		for (int i = 0; i < bb.length; i++) {
 			cc[i] = new LinkedList<Edge>();
 		}
