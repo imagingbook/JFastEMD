@@ -35,6 +35,10 @@ class Edges {
 		Edge1(int to, long reduced_cost) {
 			super(to, reduced_cost);
 		}
+		
+		Edge1(Edge e) {
+			super(e.to, e.cost);
+		}
 	}
 
 //-----------------------------------------------------------
