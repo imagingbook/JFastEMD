@@ -55,17 +55,21 @@ public class JFastEMD {
 
 		Vector<Double> P = new Vector<Double>();
 		Vector<Double> Q = new Vector<Double>();
-		for (int i = 0; i < signature1.getNumberOfFeatures() + signature2.getNumberOfFeatures(); i++) {
+		
+		final int n1 = signature1.getNumberOfFeatures();
+		final int n2 = signature2.getNumberOfFeatures();
+
+		for (int i = 0; i < n1 + n2; i++) {
 			P.add(0.0);
 			Q.add(0.0);
 		}
 
-		for (int i = 0; i < signature1.getNumberOfFeatures(); i++) {
+		for (int i = 0; i < n1; i++) {
 			P.set(i, signature1.getWeights()[i]);
 		}
 
-		for (int j = 0; j < signature2.getNumberOfFeatures(); j++) {
-			Q.set(j + signature1.getNumberOfFeatures(), signature2.getWeights()[j]);
+		for (int j = 0; j < n2; j++) {
+			Q.set(j + n1, signature2.getWeights()[j]);
 		}
 
 		Vector<Vector<Double>> C = new Vector<Vector<Double>>();
@@ -77,12 +81,12 @@ public class JFastEMD {
 			C.add(vec);
 		}
 
-		for (int i = 0; i < signature1.getNumberOfFeatures(); i++) {
-			for (int j = 0; j < signature2.getNumberOfFeatures(); j++) {
+		for (int i = 0; i < n1; i++) {
+			for (int j = 0; j < n2; j++) {
 				double dist = signature1.getFeatures()[i].groundDist(signature2.getFeatures()[j]);
 				assert (dist >= 0);
-				C.get(i).set(j + signature1.getNumberOfFeatures(), dist);
-				C.get(j + signature1.getNumberOfFeatures()).set(i, dist);
+				C.get(i).set(j + n1, dist);
+				C.get(j + n1).set(i, dist);
 			}
 		}
 
@@ -288,8 +292,7 @@ public class JFastEMD {
 		return myDist;
 	}
 
-	private double emdHat(Vector<Double> P, Vector<Double> Q, Vector<Vector<Double>> C,
-			double extraMassPenalty) {
+	private double emdHat(Vector<Double> P, Vector<Double> Q, Vector<Vector<Double>> C, double extraMassPenalty) {
 
 		// This condition should hold:
 		// ( 2^(sizeof(CONVERT_TO_T*8)) >= ( MULT_FACTOR^2 )
