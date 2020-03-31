@@ -31,7 +31,7 @@ class MinCostFlow {
 		}
 
 		// init flow
-		for (int from = 0; from < numNodes; ++from) {
+		for (int from = 0; from < numNodes; from++) {
 			for (Edge it : c.get(from)) {
 				x.get(from).add(new Edge0(it.to, it.cost, 0));
 				x.get(it.to).add(new Edge0(from, -it.cost, 0));
@@ -44,7 +44,7 @@ class MinCostFlow {
 		for (int i = 0; i < numNodes; i++) {
 			rCostForward.add(new LinkedList<Edge1>());
 		}
-		for (int from = 0; from < numNodes; ++from) {
+		for (int from = 0; from < numNodes; from++) {
 			for (Edge it : c.get(from)) {
 				rCostForward.get(from).add(new Edge1(it.to, it.cost));
 			}
@@ -58,7 +58,7 @@ class MinCostFlow {
 		for (int i = 0; i < numNodes; i++) {
 			rCostCapBackward.add(new LinkedList<Edge2>());
 		}
-		for (int from = 0; from < numNodes; ++from) {
+		for (int from = 0; from < numNodes; from++) {
 			for (Edge it : c.get(from)) {
 				rCostCapBackward.get(it.to).add(
 						new Edge2(from, -it.cost, 0));

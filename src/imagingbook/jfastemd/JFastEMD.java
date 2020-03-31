@@ -51,67 +51,61 @@ public class JFastEMD {
 	 *
 	 * If you use this code, please cite the papers.
 	 */
+
+	
 	public double distance(Signature signature1, Signature signature2, double extraMassPenalty) {
 
-		Vector<Double> P = new Vector<Double>();
-		Vector<Double> Q = new Vector<Double>();
-		
 		final int n1 = signature1.getNumberOfFeatures();
 		final int n2 = signature2.getNumberOfFeatures();
-
-		for (int i = 0; i < n1 + n2; i++) {
-			P.add(0.0);
-			Q.add(0.0);
-		}
+		
+		double[] P = new double[n1 + n2];
+		double[] Q = new double[n1 + n2];
 
 		for (int i = 0; i < n1; i++) {
-			P.set(i, signature1.getWeights()[i]);
+			P[i] = signature1.getWeights()[i];
 		}
 
 		for (int j = 0; j < n2; j++) {
-			Q.set(j + n1, signature2.getWeights()[j]);
+			Q[j + n1] = signature2.getWeights()[j];
 		}
 
-		Vector<Vector<Double>> C = new Vector<Vector<Double>>();
-		for (int i = 0; i < P.size(); i++) {
-			Vector<Double> vec = new Vector<Double>();
-			for (int j = 0; j < P.size(); j++) {
-				vec.add(0.0);
-			}
-			C.add(vec);
-		}
-
+		double[][] C = new double[P.length][P.length];
+		
+		Feature[] features1 = signature1.getFeatures();
+		Feature[] features2 = signature2.getFeatures();
+		
 		for (int i = 0; i < n1; i++) {
 			for (int j = 0; j < n2; j++) {
-				double dist = signature1.getFeatures()[i].groundDist(signature2.getFeatures()[j]);
+				double dist = features1[i].groundDist(features2[j]);
 				assert (dist >= 0);
-				C.get(i).set(j + n1, dist);
-				C.get(j + n1).set(i, dist);
+				C[i][j + n1] = dist;
+				C[j + n1][i] = dist;
 			}
 		}
 
 		return emdHat(P, Q, C, extraMassPenalty);
 	}
 
-
-	private long emdHatImpl(Vector<Long> Pc, Vector<Long> Qc, Vector<Vector<Long>> C, long extraMassPenalty) {
-		int N = Pc.size();
-		assert (Qc.size() == N);
+ // ------------------------------------------------------------------
+    	
+    private long emdHatImpl(long[] Pc, long[] Qc, long[][] C, long extraMassPenalty) {
+		final int N = Pc.length;
+		assert (Qc.length == N);
 
 		// Ensuring that the supplier - P, have more mass.
 		// Note that we assume here that C is symmetric
-		Vector<Long> P;
-		Vector<Long> Q;
-		
-		long absDiffSumPSumQ;
 		long sumP = 0;
+		for (int i = 0; i < N; i++) {
+			sumP += Pc[i];
+		}
+		
 		long sumQ = 0;
 		for (int i = 0; i < N; i++) {
-			sumP += Pc.get(i);
+			sumQ += Qc[i];
 		}
-		for (int i = 0; i < N; i++) {
-			sumQ += Qc.get(i);
-		}
+		
+		long[] P, Q;
+		long absDiffSumPSumQ;
 		if (sumQ > sumP) {
 			P = Qc;
 			Q = Pc;
@@ -132,10 +126,12 @@ public class JFastEMD {
 		int ARTIFICIAL_NODE = 2 * N + 1; // need to be last !
 		
 		for (int i = 0; i < N; i++) {
-			b.set(i, P.get(i));
+//			b.set(i, P.get(i));
+			b.set(i, P[i]);
 		}
 		for (int i = N; i < 2 * N; i++) {
-			b.set(i, Q.get(i - N));
+//			b.set(i, Q.get(i - N));
+			b.set(i, Q[i - N]);
 		}
 
 		// remark*) I put here a deficit of the extra mass, as mass that flows
@@ -152,9 +148,10 @@ public class JFastEMD {
 		long maxC = 0;
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < N; j++) {
-				assert (C.get(i).get(j) >= 0);
-				if (C.get(i).get(j) > maxC)
-					maxC = C.get(i).get(j);
+				assert (C[i][j] >= 0);
+				if (C[i][j] > maxC) {
+					maxC = C[i][j];
+				}
 			}
 		}
 		if (extraMassPenalty == -1)
@@ -175,9 +172,9 @@ public class JFastEMD {
 			for (int j = 0; j < N; j++) {
 				if (b.get(j + N) == 0)
 					continue;
-				if (C.get(i).get(j) == maxC)
+				if (C[i][j] == maxC)
 					continue;
-				c.get(i).add(new Edge(j + N, C.get(i).get(j)));
+				c.get(i).add(new Edge(j + N, C[i][j]));
 			}
 		}
 
@@ -188,7 +185,7 @@ public class JFastEMD {
 			for (int j = 0; j < N; j++) {
 				if (b.get(j + N) == 0)
 					continue;
-				if (C.get(i).get(j) == maxC)
+				if (C[i][j] == maxC)
 					continue;
 				sourcesThatFlowNotOnlyToThresh.add(i);
 				sinksThatGetFlowNotOnlyFromThresh.add(j + N);
@@ -297,39 +294,123 @@ public class JFastEMD {
 		return myDist;
 	}
 
-	private double emdHat(Vector<Double> P, Vector<Double> Q, Vector<Vector<Double>> C, double extraMassPenalty) {
+//	private double emdHat(Vector<Double> P, Vector<Double> Q, Vector<Vector<Double>> C, double extraMassPenalty) {
+//		// This condition should hold:
+//		// ( 2^(sizeof(CONVERT_TO_T*8)) >= ( MULT_FACTOR^2 )
+//		// Note that it can be problematic to check it because
+//		// of overflow problems. I simply checked it with Linux calc
+//		// which has arbitrary precision.
+//		double MULT_FACTOR = 1000000;
+//
+//		// Constructing the input
+//		int N = P.size();
+//		Vector<Long> iP = new Vector<Long>();
+//		Vector<Long> iQ = new Vector<Long>();
+//		Vector<Vector<Long>> iC = new Vector<Vector<Long>>();
+//		for (int i = 0; i < N; i++) {
+//			iP.add(0l);
+//			iQ.add(0l);
+//			Vector<Long> vec = new Vector<Long>();
+//			for (int j = 0; j < N; j++) {
+//				vec.add(0l);
+//			}
+//			iC.add(vec);
+//		}
+//
+//		// Converting to CONVERT_TO_T
+//		double sumP = 0.0;
+//		double sumQ = 0.0;
+//		double maxC = C.get(0).get(0);
+//		for (int i = 0; i < N; i++) {
+//			sumP += P.get(i);
+//			sumQ += Q.get(i);
+//			for (int j = 0; j < N; j++) {
+//				if (C.get(i).get(j) > maxC)
+//					maxC = C.get(i).get(j);
+//			}
+//		}
+//		double minSum = Math.min(sumP, sumQ);
+//		double maxSum = Math.max(sumP, sumQ);
+//		double PQnormFactor = MULT_FACTOR / maxSum;
+//		double CnormFactor = MULT_FACTOR / maxC;
+//		for (int i = 0; i < N; i++) {
+//			iP.set(i, (long) (Math.floor(P.get(i) * PQnormFactor + 0.5)));
+//			iQ.set(i, (long) (Math.floor(Q.get(i) * PQnormFactor + 0.5)));
+//			for (int j = 0; j < N; j++) {
+//				iC.get(i)
+//				.set(j,
+//						(long) (Math.floor(C.get(i).get(j)
+//								* CnormFactor + 0.5)));
+//			}
+//		}
+//
+//		// computing distance without extra mass penalty
+//		double dist = emdHatImpl(iP, iQ, iC, 0);
+//		// unnormalize
+//		dist = dist / PQnormFactor;
+//		dist = dist / CnormFactor;
+//
+//		// adding extra mass penalty
+//		if (extraMassPenalty == -1) {
+//			extraMassPenalty = maxC;
+//		}
+//		dist += (maxSum - minSum) * extraMassPenalty;
+//
+//		return dist;
+//	}
+    
+//    @Deprecated
+//    private double emdHat(Vector<Double> P, Vector<Double> Q, Vector<Vector<Double>> C, double extraMassPenalty) {
+//    	return emdHat(toArrayD(P), toArrayD(Q), toMatrixD(C), extraMassPenalty);
+//    }
+    
+	private double emdHat(double[] P, double[] Q, double[][] C, double extraMassPenalty) {
 		// This condition should hold:
 		// ( 2^(sizeof(CONVERT_TO_T*8)) >= ( MULT_FACTOR^2 )
 		// Note that it can be problematic to check it because
 		// of overflow problems. I simply checked it with Linux calc
 		// which has arbitrary precision.
-		double MULT_FACTOR = 1000000;
+		final double MULT_FACTOR = 1000000;
 
 		// Constructing the input
-		int N = P.size();
-		Vector<Long> iP = new Vector<Long>();
-		Vector<Long> iQ = new Vector<Long>();
-		Vector<Vector<Long>> iC = new Vector<Vector<Long>>();
-		for (int i = 0; i < N; i++) {
-			iP.add(0l);
-			iQ.add(0l);
-			Vector<Long> vec = new Vector<Long>();
-			for (int j = 0; j < N; j++) {
-				vec.add(0l);
-			}
-			iC.add(vec);
-		}
+//		final int N = P.size();
+		final int N = P.length;
+		
+//		Vector<Long> iP = new Vector<Long>();
+//		Vector<Long> iQ = new Vector<Long>();
+		long[] iP = new long[N];
+		long[] iQ = new long[N];
+		
+//		Vector<Vector<Long>> iC = new Vector<Vector<Long>>();
+		long[][] iC = new long[N][N];
+//		for (int i = 0; i < N; i++) {
+//			iP[i] = 0l; // iP.add(0l);	// not needed!
+//			iP[i] = 0l; // iQ.add(0l);
+//			
+//			Vector<Long> vec = new Vector<Long>();
+//			for (int j = 0; j < N; j++) {
+//				vec.add(0l);
+//			}
+//			iC.add(vec);
+//		}
 
 		// Converting to CONVERT_TO_T
 		double sumP = 0.0;
 		double sumQ = 0.0;
-		double maxC = C.get(0).get(0);
+//		double maxC = C.get(0).get(0);
+		double maxC = C[0][0];
 		for (int i = 0; i < N; i++) {
-			sumP += P.get(i);
-			sumQ += Q.get(i);
+//			sumP += P.get(i);
+//			sumQ += Q.get(i);
+			sumP += P[i];
+			sumQ += Q[i];
 			for (int j = 0; j < N; j++) {
-				if (C.get(i).get(j) > maxC)
-					maxC = C.get(i).get(j);
+//				if (C.get(i).get(j) > maxC) {
+//					maxC = C.get(i).get(j);
+//				}
+				if (C[i][j] > maxC) {
+					maxC = C[i][j];
+				}
 			}
 		}
 		double minSum = Math.min(sumP, sumQ);
@@ -337,13 +418,16 @@ public class JFastEMD {
 		double PQnormFactor = MULT_FACTOR / maxSum;
 		double CnormFactor = MULT_FACTOR / maxC;
 		for (int i = 0; i < N; i++) {
-			iP.set(i, (long) (Math.floor(P.get(i) * PQnormFactor + 0.5)));
-			iQ.set(i, (long) (Math.floor(Q.get(i) * PQnormFactor + 0.5)));
+//			iP.set(i, (long) (Math.floor(P.get(i) * PQnormFactor + 0.5)));
+//			iQ.set(i, (long) (Math.floor(Q.get(i) * PQnormFactor + 0.5)));
+//			iP[i] = (long) (Math.floor(P.get(i) * PQnormFactor + 0.5));
+//			iQ[i] = (long) (Math.floor(Q.get(i) * PQnormFactor + 0.5));
+			iP[i] = (long) (Math.floor(P[i] * PQnormFactor + 0.5));
+			iQ[i] = (long) (Math.floor(Q[i] * PQnormFactor + 0.5));
 			for (int j = 0; j < N; j++) {
-				iC.get(i)
-				.set(j,
-						(long) (Math.floor(C.get(i).get(j)
-								* CnormFactor + 0.5)));
+//				iC.get(i).set(j, (long) (Math.floor(C.get(i).get(j) * CnormFactor + 0.5)));
+//				iC[i][j] = (long) (Math.floor(C.get(i).get(j) * CnormFactor + 0.5));
+				iC[i][j] = (long) (Math.floor(C[i][j] * CnormFactor + 0.5));
 			}
 		}
 
