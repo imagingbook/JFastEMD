@@ -10,6 +10,8 @@ import imagingbook.jfastemd.Edges.Edge1;
 import imagingbook.jfastemd.Edges.Edge2;
 import imagingbook.jfastemd.Edges.Edge3;
 
+
+
 class MinCostFlow {
 
 	int numNodes;

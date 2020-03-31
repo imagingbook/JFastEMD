@@ -22,7 +22,6 @@ public class Test {
             }
         }
         
-
         // compute features and weights
         Feature2D[] features = new Feature2D[n];
         double[] weights = new double[n];
@@ -52,10 +51,12 @@ public class Test {
         Signature sig1 = getSignature(map1, bins);
         Signature sig2 = getSignature(map2, bins);
 
-        double dist = JFastEMD.distance(sig1, sig2, -1);
+        double dist = new JFastEMD().distance(sig1, sig2, -1);
 
         return dist;
     }
+    
+    // ----------------------------------------------------------------------------------------------------------
     
 	static double[] a0 = { 1.0, 0.0, 0.0, 0.0 };
 	static double[] a1 = { 0.0, 1.0, 0.0, 0.0 };

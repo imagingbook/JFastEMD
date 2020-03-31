@@ -5,8 +5,8 @@ package imagingbook.jfastemd;
  *
  */
 public class Feature2D implements Feature {
-    private double x;
-    private double y;
+    private final double x;
+    private final double y;
 
     public Feature2D(double x, double y) {
         this.x = x;
@@ -14,7 +14,7 @@ public class Feature2D implements Feature {
     }
     
     public double groundDist(Feature f) {
-        Feature2D f2d = (Feature2D)f;
+        Feature2D f2d = (Feature2D)f;	// TODO: this sucks
         double deltaX = x - f2d.x;
         double deltaY = y - f2d.y;
         return Math.sqrt((deltaX * deltaX) + (deltaY * deltaY));
