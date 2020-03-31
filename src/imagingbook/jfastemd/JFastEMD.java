@@ -102,13 +102,16 @@ public class JFastEMD {
 		// Note that we assume here that C is symmetric
 		Vector<Long> P;
 		Vector<Long> Q;
+		
 		long absDiffSumPSumQ;
 		long sumP = 0;
 		long sumQ = 0;
-		for (int i = 0; i < N; i++)
+		for (int i = 0; i < N; i++) {
 			sumP += Pc.get(i);
-		for (int i = 0; i < N; i++)
+		}
+		for (int i = 0; i < N; i++) {
 			sumQ += Qc.get(i);
+		}
 		if (sumQ > sumP) {
 			P = Qc;
 			Q = Pc;
@@ -124,8 +127,10 @@ public class JFastEMD {
 		for (int i = 0; i < 2 * N + 2; i++) {
 			b.add(0l);
 		}
+		
 		int THRESHOLD_NODE = 2 * N;
 		int ARTIFICIAL_NODE = 2 * N + 1; // need to be last !
+		
 		for (int i = 0; i < N; i++) {
 			b.set(i, P.get(i));
 		}
@@ -293,7 +298,6 @@ public class JFastEMD {
 	}
 
 	private double emdHat(Vector<Double> P, Vector<Double> Q, Vector<Vector<Double>> C, double extraMassPenalty) {
-
 		// This condition should hold:
 		// ( 2^(sizeof(CONVERT_TO_T*8)) >= ( MULT_FACTOR^2 )
 		// Note that it can be problematic to check it because
@@ -350,8 +354,9 @@ public class JFastEMD {
 		dist = dist / CnormFactor;
 
 		// adding extra mass penalty
-		if (extraMassPenalty == -1)
+		if (extraMassPenalty == -1) {
 			extraMassPenalty = maxC;
+		}
 		dist += (maxSum - minSum) * extraMassPenalty;
 
 		return dist;
