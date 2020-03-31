@@ -91,6 +91,7 @@ class MinCostFlow {
 		// Since the flow at the beginning is 0, the residual capacity is
 		// also zero
 //		Vector<List<Edge2>> rCostCapBackward = new Vector<List<Edge2>>();
+		@SuppressWarnings("unchecked")
 		List<Edge2>[] rCostCapBackward = new List[numNodes];
 		for (int i = 0; i < numNodes; i++) {
 //			rCostCapBackward.add(new LinkedList<Edge2>());
