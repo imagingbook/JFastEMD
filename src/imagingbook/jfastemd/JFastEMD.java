@@ -16,41 +16,45 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-//import java.util.Vector;
 
 import imagingbook.jfastemd.Edges.Edge;
 import imagingbook.jfastemd.Edges.Edge0;
 
 /**
+ * This interface is similar to Rubner's interface. See:
+ * http://www.cs.duke.edu/~tomasi/software/emd.htm
+ *
+ * To get the same results as Rubner's code you should set extra_mass_penalty to 0,
+ * and divide by the minimum of the sum of the two signature's weights. However, I
+ * suggest not to do this as you lose the metric property and more importantly, in my
+ * experience the performance is better with emd_hat. for more on the difference
+ * between emd and emd_hat, see the paper:
+ * A Linear Time Histogram Metric for Improved SIFT Matching
+ * Ofir Pele, Michael Werman
+ * ECCV 2008
+ *
+ * To get shorter running time, set the ground distance function to
+ * be a thresholded distance. For example: min(L2, T). Where T is some threshold.
+ * Note that the running time is shorter with smaller T values. Note also that
+ * thresholding the distance will probably increase accuracy. Finally, a thresholded
+ * metric is also a metric. See paper:
+ * Fast and Robust Earth Mover's Distances
+ * Ofir Pele, Michael Werman
+ * ICCV 2009
+ *
+ * If you use this code, please cite the papers.
+ *
  * @author Telmo Menezes (telmo@telmomenezes.com)
  * @author Ofir Pele
+ * 
+ * --------------------------------------------------------
+ * 
+ * Refactored by WILBUR
+ * @version 2020/03/31
  *
  */
 public class JFastEMD {
-	/**
-	 * This interface is similar to Rubner's interface. See:
-	 * http://www.cs.duke.edu/~tomasi/software/emd.htm
-	 *
-	 * To get the same results as Rubner's code you should set extra_mass_penalty to 0,
-	 * and divide by the minimum of the sum of the two signature's weights. However, I
-	 * suggest not to do this as you lose the metric property and more importantly, in my
-	 * experience the performance is better with emd_hat. for more on the difference
-	 * between emd and emd_hat, see the paper:
-	 * A Linear Time Histogram Metric for Improved SIFT Matching
-	 * Ofir Pele, Michael Werman
-	 * ECCV 2008
-	 *
-	 * To get shorter running time, set the ground distance function to
-	 * be a thresholded distance. For example: min(L2, T). Where T is some threshold.
-	 * Note that the running time is shorter with smaller T values. Note also that
-	 * thresholding the distance will probably increase accuracy. Finally, a thresholded
-	 * metric is also a metric. See paper:
-	 * Fast and Robust Earth Mover's Distances
-	 * Ofir Pele, Michael Werman
-	 * ICCV 2009
-	 *
-	 * If you use this code, please cite the papers.
-	 */
+
 
 	
 	public double distance(Signature signature1, Signature signature2, double extraMassPenalty) {
@@ -155,7 +159,6 @@ public class JFastEMD {
 
 		Set<Integer> sourcesThatFlowNotOnlyToThresh = new HashSet<Integer>();
 		Set<Integer> sinksThatGetFlowNotOnlyFromThresh = new HashSet<Integer>();
-		long preFlowCost = 0;
 
 		// regular edges between sinks and sources without threshold edges
 		@SuppressWarnings("unchecked")
@@ -225,6 +228,7 @@ public class JFastEMD {
 		// and vertexes that are connected only to the
 		// threshold vertex
 		int currentNodeName = 0;
+		long preFlowCost = 0;
 		
 		for (int i = 0; i < N * 2; i++) {
 			if (b[i] != 0) {
@@ -277,7 +281,7 @@ public class JFastEMD {
 			flows[i] = new LinkedList<Edge0>();
 		}
 		
-		MinCostFlow mcf = new MinCostFlow();
+		MinCostFlow mcf = new MinCostFlow(bb.length);
 		long mcfDist = mcf.compute(bb, cc, flows);
 		long myDist = preFlowCost + // pre-flowing on cases where it was possible
 				mcfDist + // solution of the transportation problem

@@ -6,6 +6,7 @@ package imagingbook.jfastemd;
  *
  */
 public class Signature {
+	
     private int numberOfFeatures;
     private Feature[] features;
     private double[] weights;
@@ -33,4 +34,5 @@ public class Signature {
     public void setWeights(double[] weights) {
         this.weights = weights;
     }
+    
 }
