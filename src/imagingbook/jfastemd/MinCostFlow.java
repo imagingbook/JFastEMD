@@ -18,11 +18,23 @@ class MinCostFlow {
 	Vector<Integer> nodesToQ;
 	
 	@Deprecated
-	long compute(long[] ea, Vector<List<Edge>> c, Vector<List<Edge0>> x) {
+	long compute(long[] ea, List<Edge>[] ca, List<Edge0>[] xa) {
+		
 		Vector<Long> e = new Vector<>();
 		for (long val : ea) {
 			e.add(val);
 		}
+		
+		Vector<List<Edge>> c = new Vector<List<Edge>>();
+		for (List<Edge> le : ca) {
+			c.add(le);
+		}
+		
+		Vector<List<Edge0>> x = new Vector<List<Edge0>>();
+		for (List<Edge0> le : xa) {
+			x.add(le);
+		}
+		
 		return compute(e, c, x);
 	}
 

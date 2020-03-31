@@ -16,7 +16,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.Vector;
+//import java.util.Vector;
 
 import imagingbook.jfastemd.Edges.Edge;
 import imagingbook.jfastemd.Edges.Edge0;
@@ -301,9 +301,12 @@ public class JFastEMD {
 			}
 		}
 
-		Vector<List<Edge>> cc = new Vector<List<Edge>>();
+//		Vector<List<Edge>> cc = new Vector<List<Edge>>();
+		@SuppressWarnings("unchecked")
+		List<Edge>[] cc = new LinkedList[bb.length];
 		for (int i = 0; i < bb.length; i++) {	// for (int i = 0; i < bb.size(); i++) {
-			cc.add(new LinkedList<Edge>());
+//			cc.add(new LinkedList<Edge>());
+			cc[i] = new LinkedList<Edge>();
 		}
 		for (int i = 0; i < c.length; i++) {	// for (int i = 0; i < c.size(); i++) {
 			if (nodesNewNames[i] == REMOVE_NODE_FLAG)	// if (nodesNewNames.get(i) == REMOVE_NODE_FLAG)
@@ -314,8 +317,8 @@ public class JFastEMD {
 //							new Edge(nodesNewNames.get(it.to), it.cost));
 //				}
 				if (nodesNewNames[it.to] != REMOVE_NODE_FLAG) {
-					cc.get(nodesNewNames[i]).add(
-							new Edge(nodesNewNames[it.to], it.cost));
+//					cc.get(nodesNewNames[i]).add(new Edge(nodesNewNames[it.to], it.cost));
+					cc[nodesNewNames[i]].add(new Edge(nodesNewNames[it.to], it.cost));
 				}
 			}
 		}
@@ -323,9 +326,12 @@ public class JFastEMD {
 //		long myDist;
 
 //		Vector<List<Edge0>> flows = new Vector<List<Edge0>>(bb.size());
-		Vector<List<Edge0>> flows = new Vector<List<Edge0>>(bb.length);
+//		Vector<List<Edge0>> flows = new Vector<List<Edge0>>(bb.length);
+		@SuppressWarnings("unchecked")
+		List<Edge0>[] flows = new LinkedList[bb.length];
 		for (int i = 0; i < bb.length; i++) {	// for (int i = 0; i < bb.size(); i++) {
-			flows.add(new LinkedList<Edge0>());
+//			flows.add(new LinkedList<Edge0>());
+			flows[i] = new LinkedList<Edge0>();
 		}
 		
 		MinCostFlow mcf = new MinCostFlow();
