@@ -10,21 +10,23 @@ import imagingbook.jfastemd.Edges.Edge1;
 import imagingbook.jfastemd.Edges.Edge2;
 import imagingbook.jfastemd.Edges.Edge3;
 
-
 class MinCostFlow {
-
-	int numNodes;
-	int[] nodesToQ;
+	
+	private final int numNodes;
+	private final int[] nodesToQ;
+	
+	MinCostFlow(int numNodes) {
+		this.numNodes = numNodes;
+		this.nodesToQ = new int[numNodes];
+	}
 
 	// e - supply(positive) and demand(negative).
 	// c[i] - edges that goes from node i. first is the second nod
 	// x - the flow is returned in it
 	long compute(long[] e, List<Edge>[] c, List<Edge0>[] x) {
-		assert (e.length == c.length);
-		assert (x.length == c.length);
-
-		numNodes = e.length;
-		nodesToQ = new int[numNodes];
+		if (e.length != numNodes || c.length != numNodes || c.length != numNodes) {
+			throw new IllegalArgumentException("Either e, c or x is not of expected length " + numNodes);
+		}
 
 		// init flow
 		for (int from = 0; from < numNodes; from++) {
@@ -100,7 +102,6 @@ class MinCostFlow {
 			do {
 				int from = prev[to];
 				assert (from != to);
-
 				// residual
 				int itccb = 0;
 				while ((itccb < rCostCapBackward[from].size())
@@ -111,7 +112,6 @@ class MinCostFlow {
 					if (rCostCapBackward[from].get(itccb).residual_capacity < delta)
 						delta = rCostCapBackward[from].get(itccb).residual_capacity;
 				}
-
 				to = from;
 			} while (to != k);
 
@@ -181,7 +181,7 @@ class MinCostFlow {
 
 		int j = 1;
 		// TODO: both of these into a function?
-		for (int i = 0; i < from; ++i) {
+		for (int i = 0; i < from; i++) {
 			Q.get(j).to = i;
 			nodesToQ[i] = j;
 			Q.get(j).cost = Long.MAX_VALUE;
