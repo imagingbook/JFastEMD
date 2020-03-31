@@ -108,3 +108,11 @@ public class Test {
         System.out.println("test 4: " + emdDist(b0, b2, 10) + " [expected: 25.7637]");
     }
 }
+
+/*
+test 1: 0.0 [expected: 0.0]
+test 1: 1.0 [expected: 1.0]
+test 2: 2.0 [expected: 2.0]
+test 3: 19.19207181614855 [expected: 19.1921]
+test 4: 25.763736318380168 [expected: 25.7637]
+*/
