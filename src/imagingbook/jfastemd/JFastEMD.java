@@ -91,6 +91,8 @@ public class JFastEMD {
     private long emdHatImpl(long[] Pc, long[] Qc, long[][] C, long extraMassPenalty) {
 		final int N = Pc.length;
 		assert (Qc.length == N);
+		
+		System.out.println("emdHatImpl: N = " + N);
 
 		// Ensuring that the supplier - P, have more mass.
 		// Note that we assume here that C is symmetric
@@ -117,21 +119,24 @@ public class JFastEMD {
 		}
 
 		// creating the b vector that contains all vertexes
-		Vector<Long> b = new Vector<Long>();
-		for (int i = 0; i < 2 * N + 2; i++) {
-			b.add(0l);
-		}
+//		Vector<Long> b = new Vector<Long>();
+		long[] b = new long[2 * N + 2];
+//		for (int i = 0; i < 2 * N + 2; i++) {
+//			b.add(0l);
+//		}
 		
 		int THRESHOLD_NODE = 2 * N;
 		int ARTIFICIAL_NODE = 2 * N + 1; // need to be last !
 		
 		for (int i = 0; i < N; i++) {
 //			b.set(i, P.get(i));
-			b.set(i, P[i]);
+//			b.set(i, P[i]);
+			b[i] = P[i];
 		}
 		for (int i = N; i < 2 * N; i++) {
 //			b.set(i, Q.get(i - N));
-			b.set(i, Q[i - N]);
+//			b.set(i, Q[i - N]);
+			b[i] = Q[i - N];
 		}
 
 		// remark*) I put here a deficit of the extra mass, as mass that flows
@@ -142,8 +147,10 @@ public class JFastEMD {
 		// threshold and outgoing
 		// edges had the cost of zero)
 		// This also makes sum of b zero.
-		b.set(THRESHOLD_NODE, -absDiffSumPSumQ);
-		b.set(ARTIFICIAL_NODE, 0l);
+//		b.set(THRESHOLD_NODE, -absDiffSumPSumQ);
+//		b.set(ARTIFICIAL_NODE, 0l);
+		b[THRESHOLD_NODE] = -absDiffSumPSumQ;
+		b[ARTIFICIAL_NODE] = 0;
 
 		long maxC = 0;
 		for (int i = 0; i < N; i++) {
@@ -160,17 +167,20 @@ public class JFastEMD {
 		Set<Integer> sourcesThatFlowNotOnlyToThresh = new HashSet<Integer>();
 		Set<Integer> sinksThatGetFlowNotOnlyFromThresh = new HashSet<Integer>();
 		long preFlowCost = 0;
+		
+//		System.out.println("emdHatImpl:  b.size() = " +  b.size());
+		System.out.println("emdHatImpl:  b.length = " +  b.length);
 
 		// regular edges between sinks and sources without threshold edges
 		Vector<List<Edge>> c = new Vector<List<Edge>>();
-		for (int i = 0; i < b.size(); i++) {
+		for (int i = 0; i < b.length; i++) {	// for (int i = 0; i < b.size(); i++) {
 			c.add(new LinkedList<Edge>());
 		}
 		for (int i = 0; i < N; i++) {
-			if (b.get(i) == 0)
+			if (b[i] == 0)	// if (b.get(i) == 0)
 				continue;
 			for (int j = 0; j < N; j++) {
-				if (b.get(j + N) == 0)
+				if (b[j + N] == 0)	// if (b.get(j + N) == 0)
 					continue;
 				if (C[i][j] == maxC)
 					continue;
@@ -180,10 +190,10 @@ public class JFastEMD {
 
 		// checking which are not isolated
 		for (int i = 0; i < N; i++) {
-			if (b.get(i) == 0)
+			if (b[i] == 0)	// if (b.get(i) == 0)
 				continue;
 			for (int j = 0; j < N; j++) {
-				if (b.get(j + N) == 0)
+				if (b[j + N] == 0)	// if (b.get(j + N) == 0)
 					continue;
 				if (C[i][j] == maxC)
 					continue;
@@ -194,7 +204,8 @@ public class JFastEMD {
 
 		// converting all sinks to negative
 		for (int i = N; i < 2 * N; i++) {
-			b.set(i, -b.get(i));
+//			b.set(i, -b.get(i));
+			b[i] = -b[i];
 		}
 
 		// add edges from/to threshold node,
@@ -220,74 +231,96 @@ public class JFastEMD {
 		int currentNodeName = 0;
 		// Note here it should be vector<int> and not vector<int>
 		// as I'm using -1 as a special flag !!!
-		int REMOVE_NODE_FLAG = -1;
-		Vector<Integer> nodesNewNames = new Vector<Integer>();
+		final int REMOVE_NODE_FLAG = -1;
+		
+//		Vector<Integer> nodesNewNames = new Vector<Integer>();
+		int[] nodesNewNames = new int[b.length];
 		Vector<Integer> nodesOldNames = new Vector<Integer>();
-		for (int i = 0; i < b.size(); i++) {
-			nodesNewNames.add(REMOVE_NODE_FLAG);
+		
+		for (int i = 0; i < b.length; i++) {	// for (int i = 0; i < b.size(); i++) {
+//			nodesNewNames.add(REMOVE_NODE_FLAG);
+			nodesNewNames[i] = REMOVE_NODE_FLAG;
 			nodesOldNames.add(0);
 		}
 		for (int i = 0; i < N * 2; i++) {
-			if (b.get(i) != 0) {
+			if (b[i] != 0) {	// if (b.get(i) != 0) {
 				if (sourcesThatFlowNotOnlyToThresh.contains(i)
 						|| sinksThatGetFlowNotOnlyFromThresh.contains(i)) {
-					nodesNewNames.set(i, currentNodeName);
+//					nodesNewNames.set(i, currentNodeName);
+					nodesNewNames[i] = currentNodeName;
 					nodesOldNames.add(i);
 					currentNodeName++;
 				} else {
 					if (i >= N) {
-						preFlowCost -= (b.get(i) * maxC);
+//						preFlowCost -= (b.get(i) * maxC);
+						preFlowCost -= (b[i] * maxC);
 					}
-					b.set(THRESHOLD_NODE, b.get(THRESHOLD_NODE) + b.get(i)); // add mass(i<N) or deficit (i>=N)
+//					b.set(THRESHOLD_NODE, b.get(THRESHOLD_NODE) + b.get(i)); // add mass(i<N) or deficit (i>=N)
+					b[THRESHOLD_NODE] = b[THRESHOLD_NODE] + b[i]; // add mass(i<N) or deficit (i>=N)
 				}
 			}
 		}
-		nodesNewNames.set(THRESHOLD_NODE, currentNodeName);
+//		nodesNewNames.set(THRESHOLD_NODE, currentNodeName);
+		nodesNewNames[THRESHOLD_NODE] = currentNodeName;
 		nodesOldNames.add(THRESHOLD_NODE);
 		currentNodeName++;
-		nodesNewNames.set(ARTIFICIAL_NODE, currentNodeName);
+//		nodesNewNames.set(ARTIFICIAL_NODE, currentNodeName);
+		nodesNewNames[ARTIFICIAL_NODE] = currentNodeName;
 		nodesOldNames.add(ARTIFICIAL_NODE);
 		currentNodeName++;
+		
+		
+//		System.out.println("emdHatImpl: nodesNewNames.size() = " +  nodesNewNames.size());
+		System.out.println("emdHatImpl: nodesNewNames.length = " +  nodesNewNames.length);
+		System.out.println("emdHatImpl: nodesOldNames.size() = " +  nodesOldNames.size());
 
-		Vector<Long> bb = new Vector<Long>();
-		for (int i = 0; i < currentNodeName; i++) {
-			bb.add(0l);
-		}
+//		Vector<Long> bb = new Vector<Long>();
+		long[] bb = new long[currentNodeName];
+//		for (int i = 0; i < currentNodeName; i++) {
+//			bb.add(0l);
+//		}
 		int j = 0;
-		for (int i = 0; i < b.size(); i++) {
-			if (nodesNewNames.get(i) != REMOVE_NODE_FLAG) {
-				bb.set(j, b.get(i));
+		for (int i = 0; i < b.length; i++) {	// for (int i = 0; i < b.size(); i++) {
+			if (nodesNewNames[i] != REMOVE_NODE_FLAG) {	// if (nodesNewNames.get(i) != REMOVE_NODE_FLAG) {
+//				bb.set(j, b.get(i));
+//				bb.set(j, b[i]);
+				bb[j] = b[i];
 				j++;
 			}
 		}
 
 		Vector<List<Edge>> cc = new Vector<List<Edge>>();
-		for (int i = 0; i < bb.size(); i++) {
+		for (int i = 0; i < bb.length; i++) {	// for (int i = 0; i < bb.size(); i++) {
 			cc.add(new LinkedList<Edge>());
 		}
 		for (int i = 0; i < c.size(); i++) {
-			if (nodesNewNames.get(i) == REMOVE_NODE_FLAG)
+			if (nodesNewNames[i] == REMOVE_NODE_FLAG)	// if (nodesNewNames.get(i) == REMOVE_NODE_FLAG)
 				continue;
 			for (Edge it : c.get(i)) {
-				if (nodesNewNames.get(it.to) != REMOVE_NODE_FLAG) {
-					cc.get(nodesNewNames.get(i)).add(
-							new Edge(nodesNewNames.get(it.to), it.cost));
+//				if (nodesNewNames.get(it.to) != REMOVE_NODE_FLAG) {
+//					cc.get(nodesNewNames.get(i)).add(
+//							new Edge(nodesNewNames.get(it.to), it.cost));
+//				}
+				if (nodesNewNames[it.to] != REMOVE_NODE_FLAG) {
+					cc.get(nodesNewNames[i]).add(
+							new Edge(nodesNewNames[it.to], it.cost));
 				}
 			}
 		}
 
-		MinCostFlow mcf = new MinCostFlow();
+//		long myDist;
 
-		long myDist;
-
-		Vector<List<Edge0>> flows = new Vector<List<Edge0>>(bb.size());
-		for (int i = 0; i < bb.size(); i++) {
+//		Vector<List<Edge0>> flows = new Vector<List<Edge0>>(bb.size());
+		Vector<List<Edge0>> flows = new Vector<List<Edge0>>(bb.length);
+		for (int i = 0; i < bb.length; i++) {	// for (int i = 0; i < bb.size(); i++) {
 			flows.add(new LinkedList<Edge0>());
 		}
+		
+		MinCostFlow mcf = new MinCostFlow();
 
 		long mcfDist = mcf.compute(bb, cc, flows);
 
-		myDist = preFlowCost + // pre-flowing on cases where it was possible
+		long myDist = preFlowCost + // pre-flowing on cases where it was possible
 				mcfDist + // solution of the transportation problem
 				(absDiffSumPSumQ * extraMassPenalty); // emd-hat extra mass penalty
 

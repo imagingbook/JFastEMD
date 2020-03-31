@@ -16,6 +16,15 @@ class MinCostFlow {
 
 	int numNodes;
 	Vector<Integer> nodesToQ;
+	
+	@Deprecated
+	long compute(long[] ea, Vector<List<Edge>> c, Vector<List<Edge0>> x) {
+		Vector<Long> e = new Vector<>();
+		for (long val : ea) {
+			e.add(val);
+		}
+		return compute(e, c, x);
+	}
 
 	// e - supply(positive) and demand(negative).
 	// c[i] - edges that goes from node i. first is the second nod
