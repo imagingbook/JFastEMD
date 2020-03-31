@@ -4,6 +4,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
+import imagingbook.jfastemd.Edges.Edge;
+import imagingbook.jfastemd.Edges.Edge0;
+import imagingbook.jfastemd.Edges.Edge1;
+import imagingbook.jfastemd.Edges.Edge2;
+import imagingbook.jfastemd.Edges.Edge3;
+
 class MinCostFlow {
 
 	int numNodes;

@@ -10,8 +10,6 @@
  * this context.
  */
 
-
-
 package imagingbook.jfastemd;
 
 import java.util.HashSet;
@@ -19,6 +17,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
+
+import imagingbook.jfastemd.Edges.Edge;
+import imagingbook.jfastemd.Edges.Edge0;
 
 /**
  * @author Telmo Menezes (telmo@telmomenezes.com)
