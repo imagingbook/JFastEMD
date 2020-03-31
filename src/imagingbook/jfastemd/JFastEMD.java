@@ -172,9 +172,12 @@ public class JFastEMD {
 		System.out.println("emdHatImpl:  b.length = " +  b.length);
 
 		// regular edges between sinks and sources without threshold edges
-		Vector<List<Edge>> c = new Vector<List<Edge>>();
+//		Vector<List<Edge>> c = new Vector<List<Edge>>();
+		@SuppressWarnings("unchecked")
+		List<Edge>[] c = new LinkedList[b.length];
 		for (int i = 0; i < b.length; i++) {	// for (int i = 0; i < b.size(); i++) {
-			c.add(new LinkedList<Edge>());
+			//c.add(new LinkedList<Edge>());
+			c[i] = new LinkedList<Edge>();
 		}
 		for (int i = 0; i < N; i++) {
 			if (b[i] == 0)	// if (b.get(i) == 0)
@@ -184,7 +187,8 @@ public class JFastEMD {
 					continue;
 				if (C[i][j] == maxC)
 					continue;
-				c.get(i).add(new Edge(j + N, C[i][j]));
+//				c.get(i).add(new Edge(j + N, C[i][j]));
+				c[i].add(new Edge(j + N, C[i][j]));
 			}
 		}
 
@@ -212,43 +216,50 @@ public class JFastEMD {
 		// note that costs are reversed to the paper (see also remark* above)
 		// It is important that it will be this way because of remark* above.
 		for (int i = 0; i < N; ++i) {
-			c.get(i).add(new Edge(THRESHOLD_NODE, 0));
+//			c.get(i).add(new Edge(THRESHOLD_NODE, 0));
+			c[i].add(new Edge(THRESHOLD_NODE, 0));
 		}
 		for (int j = 0; j < N; ++j) {
-			c.get(THRESHOLD_NODE).add(new Edge(j + N, maxC));
+//			c.get(THRESHOLD_NODE).add(new Edge(j + N, maxC));
+			c[THRESHOLD_NODE].add(new Edge(j + N, maxC));
 		}
 
 		// artificial arcs - Note the restriction that only one edge i,j is
 		// artificial so I ignore it...
 		for (int i = 0; i < ARTIFICIAL_NODE; i++) {
-			c.get(i).add(new Edge(ARTIFICIAL_NODE, maxC + 1));
-			c.get(ARTIFICIAL_NODE).add(new Edge(i, maxC + 1));
+//			c.get(i).add(new Edge(ARTIFICIAL_NODE, maxC + 1));
+			c[i].add(new Edge(ARTIFICIAL_NODE, maxC + 1));
+//			c.get(ARTIFICIAL_NODE).add(new Edge(i, maxC + 1));
+			c[ARTIFICIAL_NODE].add(new Edge(i, maxC + 1));
 		}
 
-		// remove nodes with supply demand of 0
-		// and vertexes that are connected only to the
-		// threshold vertex
-		int currentNodeName = 0;
+
 		// Note here it should be vector<int> and not vector<int>
 		// as I'm using -1 as a special flag !!!
 		final int REMOVE_NODE_FLAG = -1;
 		
 //		Vector<Integer> nodesNewNames = new Vector<Integer>();
 		int[] nodesNewNames = new int[b.length];
-		Vector<Integer> nodesOldNames = new Vector<Integer>();
+//		Vector<Integer> nodesOldNames = new Vector<Integer>();
 		
 		for (int i = 0; i < b.length; i++) {	// for (int i = 0; i < b.size(); i++) {
 //			nodesNewNames.add(REMOVE_NODE_FLAG);
 			nodesNewNames[i] = REMOVE_NODE_FLAG;
-			nodesOldNames.add(0);
+//			nodesOldNames.add(0);
 		}
+		
+		// remove nodes with supply demand of 0
+		// and vertexes that are connected only to the
+		// threshold vertex
+		int currentNodeName = 0;
+		
 		for (int i = 0; i < N * 2; i++) {
 			if (b[i] != 0) {	// if (b.get(i) != 0) {
 				if (sourcesThatFlowNotOnlyToThresh.contains(i)
 						|| sinksThatGetFlowNotOnlyFromThresh.contains(i)) {
 //					nodesNewNames.set(i, currentNodeName);
 					nodesNewNames[i] = currentNodeName;
-					nodesOldNames.add(i);
+//					nodesOldNames.add(i);
 					currentNodeName++;
 				} else {
 					if (i >= N) {
@@ -262,17 +273,18 @@ public class JFastEMD {
 		}
 //		nodesNewNames.set(THRESHOLD_NODE, currentNodeName);
 		nodesNewNames[THRESHOLD_NODE] = currentNodeName;
-		nodesOldNames.add(THRESHOLD_NODE);
+//		nodesOldNames.add(THRESHOLD_NODE);
 		currentNodeName++;
 //		nodesNewNames.set(ARTIFICIAL_NODE, currentNodeName);
 		nodesNewNames[ARTIFICIAL_NODE] = currentNodeName;
-		nodesOldNames.add(ARTIFICIAL_NODE);
+//		nodesOldNames.add(ARTIFICIAL_NODE);
 		currentNodeName++;
 		
 		
 //		System.out.println("emdHatImpl: nodesNewNames.size() = " +  nodesNewNames.size());
 		System.out.println("emdHatImpl: nodesNewNames.length = " +  nodesNewNames.length);
-		System.out.println("emdHatImpl: nodesOldNames.size() = " +  nodesOldNames.size());
+//		System.out.println("emdHatImpl: nodesOldNames.size() = " +  nodesOldNames.size());
+		System.out.println("emdHatImpl: currentNodeName = " +  currentNodeName);
 
 //		Vector<Long> bb = new Vector<Long>();
 		long[] bb = new long[currentNodeName];
@@ -293,10 +305,10 @@ public class JFastEMD {
 		for (int i = 0; i < bb.length; i++) {	// for (int i = 0; i < bb.size(); i++) {
 			cc.add(new LinkedList<Edge>());
 		}
-		for (int i = 0; i < c.size(); i++) {
+		for (int i = 0; i < c.length; i++) {	// for (int i = 0; i < c.size(); i++) {
 			if (nodesNewNames[i] == REMOVE_NODE_FLAG)	// if (nodesNewNames.get(i) == REMOVE_NODE_FLAG)
 				continue;
-			for (Edge it : c.get(i)) {
+			for (Edge it : c[i]) {	// for (Edge it : c.get(i)) {
 //				if (nodesNewNames.get(it.to) != REMOVE_NODE_FLAG) {
 //					cc.get(nodesNewNames.get(i)).add(
 //							new Edge(nodesNewNames.get(it.to), it.cost));
