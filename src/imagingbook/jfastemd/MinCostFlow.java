@@ -35,17 +35,23 @@ class MinCostFlow {
 			x.add(le);
 		}
 		
-		return compute(e, c, x);
+//		return compute(e, c, x);
+		return compute(ea, c, x);
 	}
+	
+	
 
 	// e - supply(positive) and demand(negative).
 	// c[i] - edges that goes from node i. first is the second nod
 	// x - the flow is returned in it
-	long compute(Vector<Long> e, Vector<List<Edge>> c, Vector<List<Edge0>> x) {
-		assert (e.size() == c.size());
+//	long compute(Vector<Long> e, Vector<List<Edge>> c, Vector<List<Edge0>> x) {
+	long compute(long[] e, Vector<List<Edge>> c, Vector<List<Edge0>> x) {
+//		assert (e.size() == c.size());
+		assert (e.length == c.size());
 		assert (x.size() == c.size());
 
-		numNodes = e.size();
+//		numNodes = e.size();
+		numNodes = e.length;
 		nodesToQ = new Vector<Integer>();
 		for (int i = 0; i < numNodes; i++) {
 			nodesToQ.add(0);
@@ -90,8 +96,12 @@ class MinCostFlow {
 		// demand,supply
 		long U = 0;
 		for (int i = 0; i < numNodes; i++) {
-			if (e.get(i) > U)
-				U = e.get(i);
+//			if (e.get(i) > U) {
+//				U = e.get(i);
+//			}
+			if (e[i] > U) {
+				U = e[i];
+			}
 		}
 		long delta = (long) (Math.pow(2.0,
 				Math.ceil(Math.log((double) (U)) / Math.log(2.0))));
@@ -107,9 +117,15 @@ class MinCostFlow {
 			long maxSupply = 0;
 			int k = 0;
 			for (int i = 0; i < numNodes; i++) {
-				if (e.get(i) > 0) {
-					if (maxSupply < e.get(i)) {
-						maxSupply = e.get(i);
+//				if (e.get(i) > 0) {
+//					if (maxSupply < e.get(i)) {
+//						maxSupply = e.get(i);
+//						k = i;
+//					}
+//				}
+				if (e[i] > 0) {
+					if (maxSupply < e[i]) {
+						maxSupply = e[i];
 						k = i;
 					}
 				}
@@ -119,8 +135,7 @@ class MinCostFlow {
 			delta = maxSupply;
 
 			int[] l = new int[1];
-			computeShortestPath(d, prev, k, rCostForward, rCostCapBackward,
-					e, l);
+			computeShortestPath(d, prev, k, rCostForward, rCostCapBackward, e, l);
 
 			// find delta (minimum on the path from k to l)
 			// delta= e[k];
@@ -176,8 +191,10 @@ class MinCostFlow {
 				}
 
 				// update e
-				e.set(to, e.get(to) + delta);
-				e.set(from, e.get(from) - delta);
+//				e.set(to, e.get(to) + delta);
+//				e.set(from, e.get(from) - delta);
+				e[to] = e[to] + delta;
+				e[from] = e[from] - delta;
 
 				to = from;
 			} while (to != k);
@@ -192,10 +209,14 @@ class MinCostFlow {
 		}
 		return dist;
 	}
+	
+	// --------------------------------------------------------------------------------------
 
 	void computeShortestPath(Vector<Long> d, Vector<Integer> prev,
 			int from, Vector<List<Edge1>> costForward,
-			Vector<List<Edge2>> costBackward, Vector<Long> e, int[] l) {
+			Vector<List<Edge2>> costBackward, 
+			long[] e,  // Vector<Long> e, 
+			int[] l) {
 		// Making heap (all inf except 0, so we are saving comparisons...)
 		Vector<Edge3> Q = new Vector<Edge3>();
 		for (int i = 0; i < numNodes; i++) {
@@ -231,7 +252,7 @@ class MinCostFlow {
 
 			d.set(u, Q.get(0).cost); // final distance
 			finalNodesFlg.set(u, true);
-			if (e.get(u) < 0) {
+			if (e[u] < 0) {	// if (e.get(u) < 0) {
 				l[0] = u;
 				break;
 			}
@@ -288,6 +309,8 @@ class MinCostFlow {
 			}
 		}
 	}
+	
+	// --------------------------------------------------------------------------------------
 
 	void heapDecreaseKey(Vector<Edge3> Q, Vector<Integer> nodes_to_Q,
 			int v, long alt) {

@@ -92,7 +92,7 @@ public class JFastEMD {
 		final int N = Pc.length;
 		assert (Qc.length == N);
 		
-		System.out.println("emdHatImpl: N = " + N);
+//		System.out.println("emdHatImpl: N = " + N);
 
 		// Ensuring that the supplier - P, have more mass.
 		// Note that we assume here that C is symmetric
@@ -169,7 +169,7 @@ public class JFastEMD {
 		long preFlowCost = 0;
 		
 //		System.out.println("emdHatImpl:  b.size() = " +  b.size());
-		System.out.println("emdHatImpl:  b.length = " +  b.length);
+//		System.out.println("emdHatImpl:  b.length = " +  b.length);
 
 		// regular edges between sinks and sources without threshold edges
 //		Vector<List<Edge>> c = new Vector<List<Edge>>();
@@ -282,9 +282,9 @@ public class JFastEMD {
 		
 		
 //		System.out.println("emdHatImpl: nodesNewNames.size() = " +  nodesNewNames.size());
-		System.out.println("emdHatImpl: nodesNewNames.length = " +  nodesNewNames.length);
+//		System.out.println("emdHatImpl: nodesNewNames.length = " +  nodesNewNames.length);
 //		System.out.println("emdHatImpl: nodesOldNames.size() = " +  nodesOldNames.size());
-		System.out.println("emdHatImpl: currentNodeName = " +  currentNodeName);
+//		System.out.println("emdHatImpl: currentNodeName = " +  currentNodeName);
 
 //		Vector<Long> bb = new Vector<Long>();
 		long[] bb = new long[currentNodeName];
