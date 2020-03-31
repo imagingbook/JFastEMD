@@ -37,7 +37,7 @@ class MinCostFlow {
 		}
 		
 //		return compute(e, c, x);
-		return compute(ea, c, x);
+		return compute(ea, ca, x);
 	}
 	
 	
@@ -46,10 +46,11 @@ class MinCostFlow {
 	// c[i] - edges that goes from node i. first is the second nod
 	// x - the flow is returned in it
 //	long compute(Vector<Long> e, Vector<List<Edge>> c, Vector<List<Edge0>> x) {
-	long compute(long[] e, Vector<List<Edge>> c, Vector<List<Edge0>> x) {
+	long compute(long[] e, List<Edge>[] c, Vector<List<Edge0>> x) {
 //		assert (e.size() == c.size());
-		assert (e.length == c.size());
-		assert (x.size() == c.size());
+		assert (e.length == c.length);
+//		assert (x.size() == c.size());
+		assert (x.size() == c.length);
 
 //		numNodes = e.size();
 		numNodes = e.length;
@@ -61,7 +62,7 @@ class MinCostFlow {
 
 		// init flow
 		for (int from = 0; from < numNodes; from++) {
-			for (Edge it : c.get(from)) {
+			for (Edge it : c[from]) {	// for (Edge it : c.get(from)) {
 				x.get(from).add(new Edge0(it.to, it.cost, 0));
 				x.get(it.to).add(new Edge0(from, -it.cost, 0));
 			}
@@ -77,7 +78,7 @@ class MinCostFlow {
 			rCostForward[i] = new LinkedList<Edge1>();
 		}
 		for (int from = 0; from < numNodes; from++) {
-			for (Edge it : c.get(from)) {
+			for (Edge it : c[from]) {	// for (Edge it : c.get(from)) {
 //				rCostForward.get(from).add(new Edge1(it.to, it.cost));
 				rCostForward[from].add(new Edge1(it.to, it.cost));
 			}
@@ -94,7 +95,7 @@ class MinCostFlow {
 			rCostCapBackward[i] = new LinkedList<Edge2>();
 		}
 		for (int from = 0; from < numNodes; from++) {
-			for (Edge it : c.get(from)) {
+			for (Edge it : c[from]) {	// for (Edge it : c.get(from)) {
 //				rCostCapBackward.get(it.to).add(new Edge2(from, -it.cost, 0));
 				rCostCapBackward[it.to].add(new Edge2(from, -it.cost, 0));
 			}
