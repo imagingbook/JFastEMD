@@ -15,7 +15,8 @@ import imagingbook.jfastemd.Edges.Edge3;
 class MinCostFlow {
 
 	int numNodes;
-	Vector<Integer> nodesToQ;
+//	Vector<Integer> nodesToQ;
+	int[] nodesToQ;
 	
 	@Deprecated
 	long compute(long[] ea, List<Edge>[] ca, List<Edge0>[] xa) {
@@ -52,10 +53,11 @@ class MinCostFlow {
 
 //		numNodes = e.size();
 		numNodes = e.length;
-		nodesToQ = new Vector<Integer>();
-		for (int i = 0; i < numNodes; i++) {
-			nodesToQ.add(0);
-		}
+//		nodesToQ = new Vector<Integer>();
+		nodesToQ = new int[numNodes];
+//		for (int i = 0; i < numNodes; i++) {
+//			nodesToQ.add(0);
+//		}
 
 		// init flow
 		for (int from = 0; from < numNodes; from++) {
@@ -77,7 +79,7 @@ class MinCostFlow {
 		for (int from = 0; from < numNodes; from++) {
 			for (Edge it : c.get(from)) {
 //				rCostForward.get(from).add(new Edge1(it.to, it.cost));
-				rCostForward[from].add(new Edge1(it));
+				rCostForward[from].add(new Edge1(it.to, it.cost));
 			}
 		}
 
@@ -85,14 +87,16 @@ class MinCostFlow {
 		// (c[j,i]-pi[j]+pi[i])
 		// Since the flow at the beginning is 0, the residual capacity is
 		// also zero
-		Vector<List<Edge2>> rCostCapBackward = new Vector<List<Edge2>>();
+//		Vector<List<Edge2>> rCostCapBackward = new Vector<List<Edge2>>();
+		List<Edge2>[] rCostCapBackward = new List[numNodes];
 		for (int i = 0; i < numNodes; i++) {
-			rCostCapBackward.add(new LinkedList<Edge2>());
+//			rCostCapBackward.add(new LinkedList<Edge2>());
+			rCostCapBackward[i] = new LinkedList<Edge2>();
 		}
 		for (int from = 0; from < numNodes; from++) {
 			for (Edge it : c.get(from)) {
-				rCostCapBackward.get(it.to).add(
-						new Edge2(from, -it.cost, 0));
+//				rCostCapBackward.get(it.to).add(new Edge2(from, -it.cost, 0));
+				rCostCapBackward[it.to].add(new Edge2(from, -it.cost, 0));
 			}
 		}
 
@@ -155,13 +159,21 @@ class MinCostFlow {
 
 				// residual
 				int itccb = 0;
-				while ((itccb < rCostCapBackward.get(from).size())
-						&& (rCostCapBackward.get(from).get(itccb).to != to)) {
+//				while ((itccb < rCostCapBackward.get(from).size())
+//						&& (rCostCapBackward.get(from).get(itccb).to != to)) {
+//					itccb++;
+//				}
+				while ((itccb < rCostCapBackward[from].size())
+						&& (rCostCapBackward[from].get(itccb).to != to)) {
 					itccb++;
 				}
-				if (itccb < rCostCapBackward.get(from).size()) {
-					if (rCostCapBackward.get(from).get(itccb).residual_capacity < delta)
-						delta = rCostCapBackward.get(from).get(itccb).residual_capacity;
+//				if (itccb < rCostCapBackward.get(from).size()) {
+//					if (rCostCapBackward.get(from).get(itccb).residual_capacity < delta)
+//						delta = rCostCapBackward.get(from).get(itccb).residual_capacity;
+//				}
+				if (itccb < rCostCapBackward[from].size()) {
+					if (rCostCapBackward[from].get(itccb).residual_capacity < delta)
+						delta = rCostCapBackward[from].get(itccb).residual_capacity;
 				}
 
 				to = from;
@@ -183,20 +195,34 @@ class MinCostFlow {
 
 				// update residual for backward edges
 				int itccb = 0;
-				while ((itccb < rCostCapBackward.get(to).size())
-						&& (rCostCapBackward.get(to).get(itccb).to != from)) {
+//				while ((itccb < rCostCapBackward.get(to).size())
+//						&& (rCostCapBackward.get(to).get(itccb).to != from)) {
+//					itccb++;
+//				}
+				while ((itccb < rCostCapBackward[to].size())
+						&& (rCostCapBackward[to].get(itccb).to != from)) {
 					itccb++;
 				}
-				if (itccb < rCostCapBackward.get(to).size()) {
-					rCostCapBackward.get(to).get(itccb).residual_capacity += delta;
+//				if (itccb < rCostCapBackward.get(to).size()) {
+//					rCostCapBackward.get(to).get(itccb).residual_capacity += delta;
+//				}
+				if (itccb < rCostCapBackward[to].size()) {
+					rCostCapBackward[to].get(itccb).residual_capacity += delta;
 				}
 				itccb = 0;
-				while ((itccb < rCostCapBackward.get(from).size())
-						&& (rCostCapBackward.get(from).get(itccb).to != to)) {
+//				while ((itccb < rCostCapBackward.get(from).size())
+//						&& (rCostCapBackward.get(from).get(itccb).to != to)) {
+//					itccb++;
+//				}
+				while ((itccb < rCostCapBackward[from].size())
+						&& (rCostCapBackward[from].get(itccb).to != to)) {
 					itccb++;
 				}
-				if (itccb < rCostCapBackward.get(from).size()) {
-					rCostCapBackward.get(from).get(itccb).residual_capacity -= delta;
+//				if (itccb < rCostCapBackward.get(from).size()) {
+//					rCostCapBackward.get(from).get(itccb).residual_capacity -= delta;
+//				}
+				if (itccb < rCostCapBackward[from].size()) {
+					rCostCapBackward[from].get(itccb).residual_capacity -= delta;
 				}
 
 				// update e
@@ -226,9 +252,10 @@ class MinCostFlow {
 			int[] prev, // Vector<Integer> prev,
 			int from, 
 			List<Edge1>[] costForward,	// Vector<List<Edge1>> costForward,
-			Vector<List<Edge2>> costBackward, 
+			List<Edge2>[] costBackward,	//Vector<List<Edge2>> costBackward, 
 			long[] e,  // Vector<Long> e, 
-			int[] l) {
+			int[] l) 
+	{
 		// Making heap (all inf except 0, so we are saving comparisons...)
 		Vector<Edge3> Q = new Vector<Edge3>();
 		for (int i = 0; i < numNodes; i++) {
@@ -236,21 +263,24 @@ class MinCostFlow {
 		}
 
 		Q.get(0).to = from;
-		nodesToQ.set(from, 0);
+//		nodesToQ.set(from, 0);
+		nodesToQ[from] = 0;
 		Q.get(0).cost = 0;
 
 		int j = 1;
 		// TODO: both of these into a function?
 		for (int i = 0; i < from; ++i) {
 			Q.get(j).to = i;
-			nodesToQ.set(i, j);
+//			nodesToQ.set(i, j);
+			nodesToQ[i] = j;
 			Q.get(j).cost = Long.MAX_VALUE;
 			j++;
 		}
 
 		for (int i = from + 1; i < numNodes; i++) {
 			Q.get(j).to = i;
-			nodesToQ.set(i, j);
+//			nodesToQ.set(i, j);
+			nodesToQ[i] = j;
 			Q.get(j).cost = Long.MAX_VALUE;
 			j++;
 		}
@@ -278,21 +308,19 @@ class MinCostFlow {
 //				long alt = d.get(u) + it.cost;
 				long alt = d[u] + it.cost;
 				int v = it.to;
-				if ((nodesToQ.get(v) < Q.size())
-						&& (alt < Q.get(nodesToQ.get(v)).cost)) {
+				if ((nodesToQ[v] < Q.size()) && (alt < Q.get(nodesToQ[v]).cost)) { // if ((nodesToQ.get(v) < Q.size()) && (alt < Q.get(nodesToQ.get(v)).cost)) {
 					heapDecreaseKey(Q, nodesToQ, v, alt);
 //					prev.set(v, u);
 					prev[v] = u;
 				}
 			}
-			for (Edge2 it : costBackward.get(u)) {
+			for (Edge2 it : costBackward[u]) {	// for (Edge2 it : costBackward.get(u)) {
 				if (it.residual_capacity > 0) {
 					assert (it.cost >= 0);
 //					long alt = d.get(u) + it.cost;
 					long alt = d[u] + it.cost;
 					int v = it.to;
-					if ((nodesToQ.get(v) < Q.size())
-							&& (alt < Q.get(nodesToQ.get(v)).cost)) {
+					if ((nodesToQ[v] < Q.size()) && (alt < Q.get(nodesToQ[v]).cost)) {	// if ((nodesToQ.get(v) < Q.size()) && (alt < Q.get(nodesToQ.get(v)).cost)) {
 						heapDecreaseKey(Q, nodesToQ, v, alt);
 //						prev.set(v, u);
 						prev[v] = u;
@@ -318,7 +346,7 @@ class MinCostFlow {
 		// reduced costs and capacity for backward edges
 		// (c[j,i]-pi[j]+pi[i])
 		for (int _from = 0; _from < numNodes; _from++) {
-			for (Edge2 it : costBackward.get(_from)) {
+			for (Edge2 it : costBackward[_from]) {	// for (Edge2 it : costBackward.get(_from)) {
 				if (finalNodesFlg.get(_from)) {
 //					it.cost += d.get(_from) - d.get(l[0]);
 					it.cost += d[_from] - d[l[0]];
@@ -333,9 +361,19 @@ class MinCostFlow {
 	
 	// --------------------------------------------------------------------------------------
 
-	void heapDecreaseKey(Vector<Edge3> Q, Vector<Integer> nodes_to_Q,
+//	void heapDecreaseKey(Vector<Edge3> Q, Vector<Integer> nodes_to_Q,
+//			int v, long alt) {
+//		int i = nodes_to_Q.get(v);
+//		Q.get(i).cost = alt;
+//		while (i > 0 && Q.get(PARENT(i)).cost > Q.get(i).cost) {
+//			swapHeap(Q, nodes_to_Q, i, PARENT(i));
+//			i = PARENT(i);
+//		}
+//	}
+	
+	void heapDecreaseKey(Vector<Edge3> Q, int[] nodes_to_Q,
 			int v, long alt) {
-		int i = nodes_to_Q.get(v);
+		int i = nodes_to_Q[v];
 		Q.get(i).cost = alt;
 		while (i > 0 && Q.get(PARENT(i)).cost > Q.get(i).cost) {
 			swapHeap(Q, nodes_to_Q, i, PARENT(i));
@@ -343,13 +381,43 @@ class MinCostFlow {
 		}
 	}
 
-	void heapRemoveFirst(Vector<Edge3> Q, Vector<Integer> nodes_to_Q) {
+//	void heapRemoveFirst(Vector<Edge3> Q, Vector<Integer> nodes_to_Q) {
+//		swapHeap(Q, nodes_to_Q, 0, Q.size() - 1);
+//		Q.remove(Q.size() - 1);
+//		heapify(Q, nodes_to_Q, 0);
+//	}
+	
+	void heapRemoveFirst(Vector<Edge3> Q, int[] nodes_to_Q) {
 		swapHeap(Q, nodes_to_Q, 0, Q.size() - 1);
 		Q.remove(Q.size() - 1);
 		heapify(Q, nodes_to_Q, 0);
 	}
 
-	void heapify(Vector<Edge3> Q, Vector<Integer> nodes_to_Q, int i) {
+//	void heapify(Vector<Edge3> Q, Vector<Integer> nodes_to_Q, int i) {
+//		do {
+//			// TODO: change to loop
+//			int l = LEFT(i);
+//			int r = RIGHT(i);
+//			int smallest;
+//			if ((l < Q.size()) && (Q.get(l).cost < Q.get(i).cost)) {
+//				smallest = l;
+//			} else {
+//				smallest = i;
+//			}
+//			if ((r < Q.size()) && (Q.get(r).cost < Q.get(smallest).cost)) {
+//				smallest = r;
+//			}
+//
+//			if (smallest == i)
+//				return;
+//
+//			swapHeap(Q, nodes_to_Q, i, smallest);
+//			i = smallest;
+//
+//		} while (true);
+//	}
+	
+	void heapify(Vector<Edge3> Q, int[] nodes_to_Q, int i) {
 		do {
 			// TODO: change to loop
 			int l = LEFT(i);
@@ -373,12 +441,20 @@ class MinCostFlow {
 		} while (true);
 	}
 
-	void swapHeap(Vector<Edge3> Q, Vector<Integer> nodesToQ, int i, int j) {
+//	void swapHeap(Vector<Edge3> Q, Vector<Integer> nodesToQ, int i, int j) {
+//		Edge3 tmp = Q.get(i);
+//		Q.set(i, Q.get(j));
+//		Q.set(j, tmp);
+//		nodesToQ.set(Q.get(j).to, j);
+//		nodesToQ.set(Q.get(i).to, i);
+//	}
+	
+	void swapHeap(Vector<Edge3> Q, int[] nodesToQ, int i, int j) {
 		Edge3 tmp = Q.get(i);
 		Q.set(i, Q.get(j));
 		Q.set(j, tmp);
-		nodesToQ.set(Q.get(j).to, j);
-		nodesToQ.set(Q.get(i).to, i);
+		nodesToQ[Q.get(j).to] = j;
+		nodesToQ[Q.get(i).to] = i;
 	}
 
 	int LEFT(int i) {
