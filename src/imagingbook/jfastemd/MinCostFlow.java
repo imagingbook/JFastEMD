@@ -106,10 +106,12 @@ class MinCostFlow {
 		long delta = (long) (Math.pow(2.0,
 				Math.ceil(Math.log((double) (U)) / Math.log(2.0))));
 
-		Vector<Long> d = new Vector<Long>();
+//		Vector<Long> d = new Vector<Long>();
+		long[] d = new long[numNodes];		// TODO: unused??
 		Vector<Integer> prev = new Vector<Integer>();
+		
 		for (int i = 0; i < numNodes; i++) {
-			d.add(0l);
+//			d.add(0l);
 			prev.add(0);
 		}
 		delta = 1;
@@ -212,7 +214,9 @@ class MinCostFlow {
 	
 	// --------------------------------------------------------------------------------------
 
-	void computeShortestPath(Vector<Long> d, Vector<Integer> prev,
+	void computeShortestPath(
+			long[] d, // Vector<Long> d, 
+			Vector<Integer> prev,
 			int from, Vector<List<Edge1>> costForward,
 			Vector<List<Edge2>> costBackward, 
 			long[] e,  // Vector<Long> e, 
@@ -250,7 +254,8 @@ class MinCostFlow {
 		do {
 			int u = Q.get(0).to;
 
-			d.set(u, Q.get(0).cost); // final distance
+//			d.set(u, Q.get(0).cost); // final distance
+			d[u] = Q.get(0).cost; // final distance
 			finalNodesFlg.set(u, true);
 			if (e[u] < 0) {	// if (e.get(u) < 0) {
 				l[0] = u;
@@ -262,7 +267,8 @@ class MinCostFlow {
 			// neighbors of u
 			for (Edge1 it : costForward.get(u)) {
 				assert (it.cost >= 0);
-				long alt = d.get(u) + it.cost;
+//				long alt = d.get(u) + it.cost;
+				long alt = d[u] + it.cost;
 				int v = it.to;
 				if ((nodesToQ.get(v) < Q.size())
 						&& (alt < Q.get(nodesToQ.get(v)).cost)) {
@@ -273,7 +279,8 @@ class MinCostFlow {
 			for (Edge2 it : costBackward.get(u)) {
 				if (it.residual_capacity > 0) {
 					assert (it.cost >= 0);
-					long alt = d.get(u) + it.cost;
+//					long alt = d.get(u) + it.cost;
+					long alt = d[u] + it.cost;
 					int v = it.to;
 					if ((nodesToQ.get(v) < Q.size())
 							&& (alt < Q.get(nodesToQ.get(v)).cost)) {
@@ -285,26 +292,30 @@ class MinCostFlow {
 
 		} while (Q.size() > 0);
 
-		for (int _from = 0; _from < numNodes; ++_from) {
+		for (int _from = 0; _from < numNodes; _from++) {
 			for (Edge1 it : costForward.get(_from)) {
 				if (finalNodesFlg.get(_from)) {
-					it.cost += d.get(_from) - d.get(l[0]);
+//					it.cost += d.get(_from) - d.get(l[0]);
+					it.cost += d[_from] - d[l[0]];
 				}
 				if (finalNodesFlg.get(it.to)) {
-					it.cost -= d.get(it.to) - d.get(l[0]);
+//					it.cost -= d.get(it.to) - d.get(l[0]);
+					it.cost -= d[it.to] - d[l[0]];
 				}
 			}
 		}
 
 		// reduced costs and capacity for backward edges
 		// (c[j,i]-pi[j]+pi[i])
-		for (int _from = 0; _from < numNodes; ++_from) {
+		for (int _from = 0; _from < numNodes; _from++) {
 			for (Edge2 it : costBackward.get(_from)) {
 				if (finalNodesFlg.get(_from)) {
-					it.cost += d.get(_from) - d.get(l[0]);
+//					it.cost += d.get(_from) - d.get(l[0]);
+					it.cost += d[_from] - d[l[0]];
 				}
 				if (finalNodesFlg.get(it.to)) {
-					it.cost -= d.get(it.to) - d.get(l[0]);
+//					it.cost -= d.get(it.to) - d.get(l[0]);
+					it.cost -= d[it.to] - d[l[0]];
 				}
 			}
 		}
