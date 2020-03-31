@@ -21,7 +21,7 @@ class MinCostFlow {
 	}
 
 	// e - supply(positive) and demand(negative).
-	// c[i] - edges that goes from node i. first is the second nod
+	// c[i] - edges that goes from node i. first is the second node
 	// x - the flow is returned in it
 	long compute(long[] e, List<Edge>[] c, List<Edge0>[] x) {
 		if (e.length != numNodes || c.length != numNodes || c.length != numNodes) {
@@ -93,7 +93,7 @@ class MinCostFlow {
 			delta = maxSupply;
 
 			int[] l = new int[1];
-			computeShortestPath(d, prev, k, rCostForward, rCostCapBackward, e, l);
+			l[0] = computeShortestPath(d, prev, k, rCostForward, rCostCapBackward, e, l);
 
 			// find delta (minimum on the path from k to l)
 			// delta= e[k];
@@ -166,7 +166,7 @@ class MinCostFlow {
 
 	// --------------------------------------------------------------------------------------
 
-	void computeShortestPath(long[] d, int[] prev, int from, 
+	int computeShortestPath(long[] d, int[] prev, int from, 
 			List<Edge1>[] costForward, List<Edge2>[] costBackward, long[] e, int[] l) {
 
 		// Making heap (all inf except 0, so we are saving comparisons...)
@@ -257,6 +257,8 @@ class MinCostFlow {
 				}
 			}
 		}
+		
+		return l[0];
 	}
 
 	// --------------------------------------------------------------------------------------
