@@ -58,9 +58,11 @@ public class JFastEMD {
             P.add(0.0);
             Q.add(0.0);
         }
+        
         for (int i = 0; i < signature1.getNumberOfFeatures(); i++) {
             P.set(i, signature1.getWeights()[i]);
         }
+        
         for (int j = 0; j < signature2.getNumberOfFeatures(); j++) {
             Q.set(j + signature1.getNumberOfFeatures(), signature2.getWeights()[j]);
         }
@@ -73,6 +75,7 @@ public class JFastEMD {
             }
             C.add(vec);
         }
+        
         for (int i = 0; i < signature1.getNumberOfFeatures(); i++) {
             for (int j = 0; j < signature2.getNumberOfFeatures(); j++) {
                 double dist = signature1.getFeatures()[i]
