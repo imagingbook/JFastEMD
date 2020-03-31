@@ -10,8 +10,9 @@ import imagingbook.jfastemd.Edges.Edge1;
 import imagingbook.jfastemd.Edges.Edge2;
 import imagingbook.jfastemd.Edges.Edge3;
 
+
+
 class MinCostFlow {
-	
 	private final int numNodes;
 	private final int[] nodesToQ;
 	
@@ -92,13 +93,11 @@ class MinCostFlow {
 				break;
 			delta = maxSupply;
 
-			int[] l = new int[1];
-			l[0] = computeShortestPath(d, prev, k, rCostForward, rCostCapBackward, e, l);
-
-			// find delta (minimum on the path from k to l)
 			// delta= e[k];
 			// if (-e[l]<delta) delta= e[k];
-			int to = l[0];
+			// find delta (minimum on the path from k to l)
+			int l = computeShortestPath(d, prev, k, rCostForward, rCostCapBackward, e);
+			int to = l;
 			do {
 				int from = prev[to];
 				assert (from != to);
@@ -116,7 +115,8 @@ class MinCostFlow {
 			} while (to != k);
 
 			// augment delta flow from k to l (backwards actually...)
-			to = l[0];
+//			to = l[0];
+			to = l;
 			do {
 				int from = prev[to];
 				assert (from != to);
@@ -167,7 +167,7 @@ class MinCostFlow {
 	// --------------------------------------------------------------------------------------
 
 	int computeShortestPath(long[] d, int[] prev, int from, 
-			List<Edge1>[] costForward, List<Edge2>[] costBackward, long[] e, int[] l) {
+			List<Edge1>[] costForward, List<Edge2>[] costBackward, long[] e) {
 
 		// Making heap (all inf except 0, so we are saving comparisons...)
 		Vector<Edge3> Q = new Vector<Edge3>();
@@ -199,12 +199,14 @@ class MinCostFlow {
 		for (int i = 0; i < numNodes; i++) {
 			finalNodesFlg.add(false);
 		}
+		
+		int l = 0;
 		do {
 			int u = Q.get(0).to;
 			d[u] = Q.get(0).cost; // final distance
 			finalNodesFlg.set(u, true);
 			if (e[u] < 0) {
-				l[0] = u;
+				l = u;
 				break;
 			}
 
@@ -237,10 +239,10 @@ class MinCostFlow {
 		for (int _from = 0; _from < numNodes; _from++) {
 			for (Edge1 it : costForward[_from]) {
 				if (finalNodesFlg.get(_from)) {
-					it.cost += d[_from] - d[l[0]];
+					it.cost += d[_from] - d[l];
 				}
 				if (finalNodesFlg.get(it.to)) {
-					it.cost -= d[it.to] - d[l[0]];
+					it.cost -= d[it.to] - d[l];
 				}
 			}
 		}
@@ -250,15 +252,15 @@ class MinCostFlow {
 		for (int _from = 0; _from < numNodes; _from++) {
 			for (Edge2 it : costBackward[_from]) {
 				if (finalNodesFlg.get(_from)) {
-					it.cost += d[_from] - d[l[0]];
+					it.cost += d[_from] - d[l];
 				}
 				if (finalNodesFlg.get(it.to)) {
-					it.cost -= d[it.to] - d[l[0]];
+					it.cost -= d[it.to] - d[l];
 				}
 			}
 		}
 		
-		return l[0];
+		return l;
 	}
 
 	// --------------------------------------------------------------------------------------
