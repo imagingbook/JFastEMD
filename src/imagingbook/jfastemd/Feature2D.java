@@ -13,10 +13,16 @@ public class Feature2D implements Feature {
         this.y = y;
     }
     
+    @Override
     public double groundDist(Feature f) {
-        Feature2D f2d = (Feature2D)f;	// TODO: this sucks
-        double deltaX = x - f2d.x;
-        double deltaY = y - f2d.y;
-        return Math.sqrt((deltaX * deltaX) + (deltaY * deltaY));
+    	if (f instanceof Feature2D) {
+	        Feature2D f2d = (Feature2D)f;
+	        double deltaX = x - f2d.x;
+	        double deltaY = y - f2d.y;
+	        return Math.sqrt((deltaX * deltaX) + (deltaY * deltaY));
+    	}
+    	else {
+    		throw new IllegalArgumentException("groundDist(): non-matching feature types!");
+    	}
     }
 }

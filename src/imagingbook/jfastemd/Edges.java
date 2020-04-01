@@ -5,7 +5,7 @@ package imagingbook.jfastemd;
  *
  */
 
-class Edges {
+abstract class Edges {
 
 	static class Edge {
 		int to;
@@ -36,9 +36,9 @@ class Edges {
 			super(to, reduced_cost);
 		}
 		
-		Edge1(Edge e) {
-			super(e.to, e.cost);
-		}
+//		Edge1(Edge e) {
+//			super(e.to, e.cost);
+//		}
 	}
 
 //-----------------------------------------------------------
@@ -59,9 +59,9 @@ class Edges {
 			super(0, 0);
 		}
 
-		Edge3(int to, long dist) {
-			super(to, dist);
-		}
+//		Edge3(int to, long dist) {
+//			super(to, dist);
+//		}
 	}
 
 //-----------------------------------------------------------

@@ -5,7 +5,6 @@ package imagingbook.jfastemd;
  * @author Telmo Menezes (telmo@telmomenezes.com)
  * @author WILBUR (modified)
  * 
- * TODO: make generic!
  *
  */
 public class Signature {

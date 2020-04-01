@@ -4,7 +4,7 @@ package imagingbook.jfastemd;
  * @author Telmo Menezes (telmo@telmomenezes.com)
  *
  */
-public class Test {
+public class RunTest {
 
     static double getValue(double[] map, int x, int y, int bins) {
         return map[(y * bins) + x];
@@ -91,11 +91,14 @@ public class Test {
 			0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
     public static void main(String[] args) {
+    	long startTime = System.currentTimeMillis();
         System.out.println("test 1: " + emdDist(a0, a0, 2) + " [expected: 0.0]");
         System.out.println("test 1: " + emdDist(a0, a1, 2) + " [expected: 1.0]");
         System.out.println("test 2: " + emdDist(a0, a2, 2) + " [expected: 2.0]");
         System.out.println("test 3: " + emdDist(b0, b1, 10) + " [expected: 19.1921]");
         System.out.println("test 4: " + emdDist(b0, b2, 10) + " [expected: 25.7637]");
+        long elapsedTime = System.currentTimeMillis() - startTime;
+        System.out.println("Time spent (ms): " + elapsedTime);
     }
 }
 
