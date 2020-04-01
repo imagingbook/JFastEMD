@@ -43,7 +43,7 @@ public class Test {
     static double emdDist(double[] map1, double[] map2, int bins) {
         Signature sig1 = getSignature(map1, bins);
         Signature sig2 = getSignature(map2, bins);
-        return new JFastEMD(sig1, sig2, -1).getDistance();
+        return new JFastEMD(sig1, sig2).getDistance();
     }
     
     // ----------------------------------------------------------------------------------------------------------

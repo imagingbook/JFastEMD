@@ -60,6 +60,10 @@ public class JFastEMD {
 	private final double[][] C;
 	private final double extraMassPenalty;
 	
+	public JFastEMD(Signature signature1, Signature signature2) {
+		this(signature1, signature2, -1);
+	}
+	
 	public JFastEMD(Signature signature1, Signature signature2, double extraMassPenalty) {
 		this.n1 = signature1.getNumberOfFeatures();
 		this.n2 = signature2.getNumberOfFeatures();
@@ -123,6 +127,7 @@ public class JFastEMD {
 //		}
 
 		return emdHat(P, Q, C, extraMassPenalty);
+		
 	}
 
  // ------------------------------------------------------------------
@@ -372,10 +377,13 @@ public class JFastEMD {
 		dist = dist / CnormFactor;
 
 		// adding extra mass penalty
-		if (extraMassPenalty == -1) {
-			extraMassPenalty = maxC;
-		}
-		dist += (maxSum - minSum) * extraMassPenalty;
+//		if (extraMassPenalty == -1) {	// TODO: check role/type of extraMassPenalty!
+//			extraMassPenalty = maxC;
+//		}
+		
+		double emp = (extraMassPenalty < 0) ? maxC : extraMassPenalty;
+//		dist += (maxSum - minSum) * extraMassPenalty;
+		dist += (maxSum - minSum) * emp;
 
 		return dist;
 	}
