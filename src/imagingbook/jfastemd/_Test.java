@@ -22,14 +22,14 @@ public class _Test {
         }
         
         // compute features and weights
-        Feature2D[] features = new Feature2D[n];
+        Feature[] features = new Feature[n];
         double[] weights = new double[n];
         int i = 0;
         for (int x = 0; x < bins; x++) {
             for (int y = 0; y < bins; y++) {
                 double val = getValue(map, x, y, bins);
                 if (val > 0) {
-                    Feature2D f = new Feature2D(x, y);
+                    Feature f = new Feature(x, y);
                     features[i] = f;
                     weights[i] = val;
                     i++;

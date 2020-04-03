@@ -1,7 +1,36 @@
 package imagingbook.jfastemd;
 
-public interface Feature {
+/**
+ * This class represents a n-dimensional feature.
+ * @author WB
+ *
+ */
+public class Feature {
 	
-    double groundDist(Feature f);
+    private final double[] x;
+
+    public Feature(double ... x) {
+        this.x = x;
+    }
+    
+    public double[] getX() {
+    	return this.x;
+    }
+    
+    public double getVal(int k) {
+    	return this.x[k];
+    }
+    
+    public double groundDist(Feature other) {
+    	if (this.x.length != other.x.length) {
+    		throw new IllegalArgumentException("groundDist(): non-matching feature lengths!");
+    	}
+    	double sum = 0;
+    	for (int i = 0; i < x.length; i++) {
+	        double d = this.x[i] - other.x[i];
+	        sum = sum + d * d;
+    	}
+    	return Math.sqrt(sum);
+    }
     
 }
