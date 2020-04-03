@@ -113,7 +113,6 @@ class MinCostFlow {
 			} while (to != k);
 
 			// augment delta flow from k to l (backwards actually...)
-//			to = l[0];
 			to = l;
 			do {
 				int from = prev[to];
@@ -263,8 +262,7 @@ class MinCostFlow {
 
 	// --------------------------------------------------------------------------------------
 
-	void heapDecreaseKey(Vector<Edge> Q, int[] nodes_to_Q,
-			int v, long alt) {
+	void heapDecreaseKey(Vector<Edge> Q, int[] nodes_to_Q, int v, long alt) {
 		int i = nodes_to_Q[v];
 		Q.get(i).cost = alt;
 		while (i > 0 && Q.get(PARENT(i)).cost > Q.get(i).cost) {
