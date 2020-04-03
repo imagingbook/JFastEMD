@@ -1,5 +1,6 @@
 package imagingbook.jfastemd;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
@@ -167,7 +168,7 @@ class MinCostFlow {
 			List<EdgeReducedForward>[] costForward, List<EdgeReducedBackward>[] costBackward, long[] e) {
 
 		// Making heap (all inf except 0, so we are saving comparisons...)
-		Vector<Edge> Q = new Vector<Edge>();
+		List<Edge> Q = new ArrayList<Edge>();
 		for (int i = 0; i < numNodes; i++) {
 			Q.add(new Edge());
 		}
@@ -262,7 +263,7 @@ class MinCostFlow {
 
 	// --------------------------------------------------------------------------------------
 
-	void heapDecreaseKey(Vector<Edge> Q, int[] nodes_to_Q, int v, long alt) {
+	void heapDecreaseKey(List<Edge> Q, int[] nodes_to_Q, int v, long alt) {
 		int i = nodes_to_Q[v];
 		Q.get(i).cost = alt;
 		while (i > 0 && Q.get(PARENT(i)).cost > Q.get(i).cost) {
@@ -271,13 +272,13 @@ class MinCostFlow {
 		}
 	}
 
-	void heapRemoveFirst(Vector<Edge> Q, int[] nodes_to_Q) {
+	void heapRemoveFirst(List<Edge> Q, int[] nodes_to_Q) {
 		swapHeap(Q, nodes_to_Q, 0, Q.size() - 1);
 		Q.remove(Q.size() - 1);
 		heapify(Q, nodes_to_Q, 0);
 	}
 
-	void heapify(Vector<Edge> Q, int[] nodes_to_Q, int i) {
+	void heapify(List<Edge> Q, int[] nodes_to_Q, int i) {
 		do {
 			// TODO: change to loop
 			int l = LEFT(i);
@@ -301,7 +302,7 @@ class MinCostFlow {
 		} while (true);
 	}
 
-	void swapHeap(Vector<Edge> Q, int[] nodesToQ, int i, int j) {
+	void swapHeap(List<Edge> Q, int[] nodesToQ, int i, int j) {
 		Edge tmp = Q.get(i);
 		Q.set(i, Q.get(j));
 		Q.set(j, tmp);
