@@ -3,12 +3,11 @@ package imagingbook.jfastemd;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Vector;
 
 import imagingbook.jfastemd.Edges.Edge;
-import imagingbook.jfastemd.Edges.EdgeWithFlow;
-import imagingbook.jfastemd.Edges.EdgeReducedForward;
 import imagingbook.jfastemd.Edges.EdgeReducedBackward;
+import imagingbook.jfastemd.Edges.EdgeReducedForward;
+import imagingbook.jfastemd.Edges.EdgeWithFlow;
 
 
 class MinCostFlow {
@@ -193,16 +192,13 @@ class MinCostFlow {
 			j++;
 		}
 
-		Vector<Boolean> finalNodesFlg = new Vector<Boolean>();
-		for (int i = 0; i < numNodes; i++) {
-			finalNodesFlg.add(false);
-		}
+		boolean[] finalNodesFlg = new boolean[numNodes];	// finalNodesFlg[i] = false;
 		
 		int l = 0;
 		do {
 			int u = Q.get(0).to;
 			d[u] = Q.get(0).cost; // final distance
-			finalNodesFlg.set(u, true);
+			finalNodesFlg[u] = true;
 			if (e[u] < 0) {
 				l = u;
 				break;
@@ -236,10 +232,10 @@ class MinCostFlow {
 
 		for (int _from = 0; _from < numNodes; _from++) {
 			for (EdgeReducedForward it : costForward[_from]) {
-				if (finalNodesFlg.get(_from)) {
+				if (finalNodesFlg[_from]) {
 					it.cost += d[_from] - d[l];
 				}
-				if (finalNodesFlg.get(it.to)) {
+				if (finalNodesFlg[it.to]) {
 					it.cost -= d[it.to] - d[l];
 				}
 			}
@@ -249,10 +245,10 @@ class MinCostFlow {
 		// (c[j,i]-pi[j]+pi[i])
 		for (int _from = 0; _from < numNodes; _from++) {
 			for (EdgeReducedBackward it : costBackward[_from]) {
-				if (finalNodesFlg.get(_from)) {
+				if (finalNodesFlg[_from]) {
 					it.cost += d[_from] - d[l];
 				}
-				if (finalNodesFlg.get(it.to)) {
+				if (finalNodesFlg[it.to]) {
 					it.cost -= d[it.to] - d[l];
 				}
 			}
