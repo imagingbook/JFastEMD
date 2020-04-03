@@ -106,7 +106,6 @@ public class Test {
         System.out.println("test 2: " + emdDist(a0, a2, 2) + " [expected: 2.0]");
         System.out.println("test 3: " + emdDist(b0, b1, 10) + " [expected: 19.1921]");
         System.out.println("test 4: " + emdDist(b0, b2, 10) + " [expected: 25.7637]");
-        long elapsedTime = System.currentTimeMillis() - startTime;
-        System.out.println("Time spent (ms): " + elapsedTime);
+        System.out.println("Time spent (ms): " + (System.currentTimeMillis() - startTime));
     }
 }

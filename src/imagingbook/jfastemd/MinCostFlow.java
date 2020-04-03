@@ -5,11 +5,9 @@ import java.util.List;
 import java.util.Vector;
 
 import imagingbook.jfastemd.Edges.Edge;
-import imagingbook.jfastemd.Edges.Edge0;
-import imagingbook.jfastemd.Edges.Edge1;
-import imagingbook.jfastemd.Edges.Edge2;
-import imagingbook.jfastemd.Edges.Edge3;
-
+import imagingbook.jfastemd.Edges.EdgeWithFlow;
+import imagingbook.jfastemd.Edges.EdgeReducedForward;
+import imagingbook.jfastemd.Edges.EdgeReducedBackward;
 
 
 class MinCostFlow {
@@ -24,7 +22,7 @@ class MinCostFlow {
 	// e - supply(positive) and demand(negative).
 	// c[i] - edges that goes from node i. first is the second node
 	// x - the flow is returned in it
-	long compute(long[] e, List<Edge>[] c, List<Edge0>[] x) {
+	long compute(long[] e, List<Edge>[] c, List<EdgeWithFlow>[] x) {
 		if (e.length != numNodes || c.length != numNodes || c.length != numNodes) {
 			throw new IllegalArgumentException("Either e, c or x is not of expected length " + numNodes);
 		}
@@ -32,21 +30,21 @@ class MinCostFlow {
 		// init flow
 		for (int from = 0; from < numNodes; from++) {
 			for (Edge it : c[from]) {
-				x[from].add(new Edge0(it.to, it.cost, 0));
-				x[it.to].add(new Edge0(from, -it.cost, 0));
+				x[from].add(new EdgeWithFlow(it.to, it.cost, 0));
+				x[it.to].add(new EdgeWithFlow(from, -it.cost, 0));
 			}
 		}
 
 		// reduced costs for forward edges (c[i,j]-pi[i]+pi[j])
 		// Note that for forward edges the residual capacity is infinity
 		@SuppressWarnings("unchecked")
-		List<Edge1>[] rCostForward = new List[numNodes];
+		List<EdgeReducedForward>[] rCostForward = new List[numNodes];
 		for (int i = 0; i < numNodes; i++) {
-			rCostForward[i] = new LinkedList<Edge1>();
+			rCostForward[i] = new LinkedList<EdgeReducedForward>();
 		}
 		for (int from = 0; from < numNodes; from++) {
 			for (Edge it : c[from]) {
-				rCostForward[from].add(new Edge1(it.to, it.cost));
+				rCostForward[from].add(new EdgeReducedForward(it.to, it.cost));
 			}
 		}
 
@@ -55,13 +53,13 @@ class MinCostFlow {
 		// Since the flow at the beginning is 0, the residual capacity is
 		// also zero
 		@SuppressWarnings("unchecked")
-		List<Edge2>[] rCostCapBackward = new List[numNodes];
+		List<EdgeReducedBackward>[] rCostCapBackward = new List[numNodes];
 		for (int i = 0; i < numNodes; i++) {
-			rCostCapBackward[i] = new LinkedList<Edge2>();
+			rCostCapBackward[i] = new LinkedList<EdgeReducedBackward>();
 		}
 		for (int from = 0; from < numNodes; from++) {
 			for (Edge it : c[from]) {
-				rCostCapBackward[it.to].add(new Edge2(from, -it.cost, 0));
+				rCostCapBackward[it.to].add(new EdgeReducedBackward(from, -it.cost, 0));
 			}
 		}
 
@@ -157,7 +155,7 @@ class MinCostFlow {
 		// compute distance from x
 		long dist = 0;
 		for (int from = 0; from < numNodes; from++) {
-			for (Edge0 it : x[from]) {
+			for (EdgeWithFlow it : x[from]) {
 				dist += (it.cost * it.flow);
 			}
 		}
@@ -167,12 +165,12 @@ class MinCostFlow {
 	// --------------------------------------------------------------------------------------
 
 	int computeShortestPath(long[] d, int[] prev, int from, 
-			List<Edge1>[] costForward, List<Edge2>[] costBackward, long[] e) {
+			List<EdgeReducedForward>[] costForward, List<EdgeReducedBackward>[] costBackward, long[] e) {
 
 		// Making heap (all inf except 0, so we are saving comparisons...)
-		Vector<Edge3> Q = new Vector<Edge3>();
+		Vector<Edge> Q = new Vector<Edge>();
 		for (int i = 0; i < numNodes; i++) {
-			Q.add(new Edge3());
+			Q.add(new Edge());
 		}
 
 		Q.get(0).to = from;
@@ -213,7 +211,7 @@ class MinCostFlow {
 			heapRemoveFirst(Q, nodesToQ);
 
 			// neighbors of u
-			for (Edge1 it : costForward[u]) {
+			for (EdgeReducedForward it : costForward[u]) {
 				assert (it.cost >= 0);
 				long alt = d[u] + it.cost;
 				int v = it.to;
@@ -222,7 +220,7 @@ class MinCostFlow {
 					prev[v] = u;
 				}
 			}
-			for (Edge2 it : costBackward[u]) {
+			for (EdgeReducedBackward it : costBackward[u]) {
 				if (it.residual_capacity > 0) {
 					assert (it.cost >= 0);
 					long alt = d[u] + it.cost;
@@ -237,7 +235,7 @@ class MinCostFlow {
 		} while (Q.size() > 0);
 
 		for (int _from = 0; _from < numNodes; _from++) {
-			for (Edge1 it : costForward[_from]) {
+			for (EdgeReducedForward it : costForward[_from]) {
 				if (finalNodesFlg.get(_from)) {
 					it.cost += d[_from] - d[l];
 				}
@@ -250,7 +248,7 @@ class MinCostFlow {
 		// reduced costs and capacity for backward edges
 		// (c[j,i]-pi[j]+pi[i])
 		for (int _from = 0; _from < numNodes; _from++) {
-			for (Edge2 it : costBackward[_from]) {
+			for (EdgeReducedBackward it : costBackward[_from]) {
 				if (finalNodesFlg.get(_from)) {
 					it.cost += d[_from] - d[l];
 				}
@@ -265,7 +263,7 @@ class MinCostFlow {
 
 	// --------------------------------------------------------------------------------------
 
-	void heapDecreaseKey(Vector<Edge3> Q, int[] nodes_to_Q,
+	void heapDecreaseKey(Vector<Edge> Q, int[] nodes_to_Q,
 			int v, long alt) {
 		int i = nodes_to_Q[v];
 		Q.get(i).cost = alt;
@@ -275,13 +273,13 @@ class MinCostFlow {
 		}
 	}
 
-	void heapRemoveFirst(Vector<Edge3> Q, int[] nodes_to_Q) {
+	void heapRemoveFirst(Vector<Edge> Q, int[] nodes_to_Q) {
 		swapHeap(Q, nodes_to_Q, 0, Q.size() - 1);
 		Q.remove(Q.size() - 1);
 		heapify(Q, nodes_to_Q, 0);
 	}
 
-	void heapify(Vector<Edge3> Q, int[] nodes_to_Q, int i) {
+	void heapify(Vector<Edge> Q, int[] nodes_to_Q, int i) {
 		do {
 			// TODO: change to loop
 			int l = LEFT(i);
@@ -305,8 +303,8 @@ class MinCostFlow {
 		} while (true);
 	}
 
-	void swapHeap(Vector<Edge3> Q, int[] nodesToQ, int i, int j) {
-		Edge3 tmp = Q.get(i);
+	void swapHeap(Vector<Edge> Q, int[] nodesToQ, int i, int j) {
+		Edge tmp = Q.get(i);
 		Q.set(i, Q.get(j));
 		Q.set(j, tmp);
 		nodesToQ[Q.get(j).to] = j;
