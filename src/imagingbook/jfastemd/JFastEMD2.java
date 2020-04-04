@@ -75,12 +75,12 @@ All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted
 provided that the following conditions are met:
-* Redistributions of source code must retain the above copyright
+ * Redistributions of source code must retain the above copyright
   notice, this list of conditions and the following disclaimer.
-* Redistributions in binary form must reproduce the above copyright
+ * Redistributions in binary form must reproduce the above copyright
   notice, this list of conditions and the following disclaimer in the
   documentation and/or other materials provided with the distribution.
-* Neither the name of the The Hebrew University of Jerusalem nor the
+ * Neither the name of the The Hebrew University of Jerusalem nor the
   names of its contributors may be used to endorse or promote products
   derived from this software without specific prior written permission.
 
@@ -105,16 +105,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
 public class JFastEMD2 {
-	
+
 	private final int n1, n2;
 	private final double[] P, Q;
 	private final double[][] C;
 	private final double extraMassPenalty;
-	
+
 	public JFastEMD2(Signature signature1, Signature signature2) {
 		this(signature1, signature2, -1);
 	}
-	
+
 	public JFastEMD2(Signature signature1, Signature signature2, double extraMassPenalty) {
 		this.n1 = signature1.getNumberOfFeatures();
 		this.n2 = signature2.getNumberOfFeatures();
@@ -124,7 +124,7 @@ public class JFastEMD2 {
 		this.extraMassPenalty = extraMassPenalty;
 		init(signature1, signature2);
 	}
-	
+
 	private void init(Signature signature1, Signature signature2) {
 		for (int i = 0; i < n1; i++) {
 			P[i] = signature1.getWeights()[i];
@@ -133,29 +133,89 @@ public class JFastEMD2 {
 		for (int j = 0; j < n2; j++) {
 			Q[j + n1] = signature2.getWeights()[j];
 		}
-		
+
 		Feature[] f1 = signature1.getFeatures();
 		Feature[] f2 = signature2.getFeatures();
-		
+
 		for (int i = 0; i < n1; i++) {
 			for (int j = 0; j < n2; j++) {
 				double dist = f1[i].groundDist(f2[j]);
-				assert (dist >= 0);
 				C[i][j + n1] = dist;
 				C[j + n1][i] = dist;
 			}
 		}
 	}
 
+	// ------------------------------------------------------------------
+
 	public double getDistance() {
-		return emdHat(P, Q, C, extraMassPenalty);
+		return emdHat(P, Q, C);
 	}
 
- // ------------------------------------------------------------------
-    	
-    private long emdHatImpl(long[] Pc, long[] Qc, long[][] C, long extraMassPenalty) {
+	// ------------------------------------------------------------------
+
+	private double emdHat(double[] P, double[] Q, double[][] C) {
+		// This condition should hold:
+		// ( 2^(sizeof(CONVERT_TO_T*8)) >= ( MULT_FACTOR^2 )
+		// Note that it can be problematic to check it because
+		// of overflow problems. I simply checked it with Linux calc
+		// which has arbitrary precision.
+		final double MULT_FACTOR = 1000000;
+
+		// Constructing the input
+		final int N = P.length;
+		long[][] iC = new long[N][N];
+
+		// Converting to CONVERT_TO_T
+		double sumP = 0.0;
+		double sumQ = 0.0;
+		double maxC = C[0][0];
+		for (int i = 0; i < N; i++) {
+			sumP += P[i];
+			sumQ += Q[i];
+			for (int j = 0; j < N; j++) {
+				if (C[i][j] > maxC) {
+					maxC = C[i][j];
+				}
+			}
+		}
+
+		long[] iP = new long[N];
+		long[] iQ = new long[N];
+		double minSum = Math.min(sumP, sumQ);
+		double maxSum = Math.max(sumP, sumQ);
+		double PQnormFactor = MULT_FACTOR / maxSum;
+		double CnormFactor = MULT_FACTOR / maxC;
+		for (int i = 0; i < N; i++) {
+			iP[i] = Math.round(P[i] * PQnormFactor);
+			iQ[i] = Math.round(Q[i] * PQnormFactor);
+			for (int j = 0; j < N; j++) {
+				iC[i][j] = Math.round(C[i][j] * CnormFactor);
+			}
+		}
+
+		// computing distance without extra mass penalty
+		double dist = emdHatImpl(iP, iQ, iC, 0);
+		// unnormalize
+		dist = dist / PQnormFactor;
+		dist = dist / CnormFactor;
+
+		// adding extra mass penalty
+		double emp = (extraMassPenalty < 0) ? maxC : extraMassPenalty;
+		dist += (maxSum - minSum) * emp;
+
+		return dist;
+	}
+
+	// ------------------------------------------------------------------
+	/**
+	 * EMD implementation using integer (long) quantities.
+	 */
+	private long emdHatImpl(long[] Pc, long[] Qc, long[][] C, long extraMassPenalty) {
+		if (Pc.length != Qc.length) {
+			throw new IllegalArgumentException("Pc, Qc must be of same length!");
+		}
 		final int N = Pc.length;
-		assert (Qc.length == N);
 
 		// Ensuring that the supplier - P, have more mass.
 		// Note that we assume here that C is symmetric
@@ -163,12 +223,12 @@ public class JFastEMD2 {
 		for (int i = 0; i < N; i++) {
 			sumP += Pc[i];
 		}
-		
+
 		long sumQ = 0;
 		for (int i = 0; i < N; i++) {
 			sumQ += Qc[i];
 		}
-		
+
 		long[] P, Q;
 		long absDiffSumPSumQ;
 		if (sumQ > sumP) {
@@ -182,13 +242,14 @@ public class JFastEMD2 {
 		}
 
 		// creating the b vector that contains all vertexes
-		long[] b = new long[2 * N + 2];
-		int THRESHOLD_NODE = 2 * N;
-		int ARTIFICIAL_NODE = 2 * N + 1; // need to be last !
-		
+		final long[] b = new long[2 * N + 2];
+		final int THRESHOLD_NODE = 2 * N;
+		final int ARTIFICIAL_NODE = 2 * N + 1; // need to be last !
+
 		for (int i = 0; i < N; i++) {
 			b[i] = P[i];
 		}
+		
 		for (int i = N; i < 2 * N; i++) {
 			b[i] = Q[i - N];
 		}
@@ -213,8 +274,6 @@ public class JFastEMD2 {
 				}
 			}
 		}
-		if (extraMassPenalty == -1)
-			extraMassPenalty = maxC;
 
 		Set<Integer> sourcesThatFlowNotOnlyToThresh = new HashSet<Integer>();
 		Set<Integer> sinksThatGetFlowNotOnlyFromThresh = new HashSet<Integer>();
@@ -278,17 +337,17 @@ public class JFastEMD2 {
 		// as I'm using -1 as a special flag !!!
 		final int REMOVE_NODE_FLAG = -1;
 		int[] nodesNewNames = new int[b.length];
-		
+
 		for (int i = 0; i < b.length; i++) {
 			nodesNewNames[i] = REMOVE_NODE_FLAG;
 		}
-		
+
 		// remove nodes with supply demand of 0
 		// and vertexes that are connected only to the
 		// threshold vertex
 		int currentNodeName = 0;
 		long preFlowCost = 0;
-		
+
 		for (int i = 0; i < N * 2; i++) {
 			if (b[i] != 0) {
 				if (sourcesThatFlowNotOnlyToThresh.contains(i)
@@ -309,8 +368,8 @@ public class JFastEMD2 {
 		nodesNewNames[ARTIFICIAL_NODE] = currentNodeName;
 		currentNodeName++;
 
-		long[] bb = new long[currentNodeName];
-		
+		final long[] bb = new long[currentNodeName];
+
 		int j = 0;
 		for (int i = 0; i < b.length; i++) {
 			if (nodesNewNames[i] != REMOVE_NODE_FLAG) {
@@ -334,75 +393,28 @@ public class JFastEMD2 {
 			}
 		}
 
-		@SuppressWarnings("unchecked")
-		List<EdgeWithFlow>[] flows = new LinkedList[bb.length];
-		for (int i = 0; i < bb.length; i++) {
-			flows[i] = new LinkedList<EdgeWithFlow>();
-		}
+//		@SuppressWarnings("unchecked")
+//		List<EdgeWithFlow>[] flows = new LinkedList[bb.length];
+//		for (int i = 0; i < bb.length; i++) {
+//			flows[i] = new LinkedList<EdgeWithFlow>();
+//		}
+
+		//		if (extraMassPenalty == -1)
+		//			extraMassPenalty = maxC;	
+		long emp = (extraMassPenalty == -1) ? maxC : extraMassPenalty;
+
+//		MinCostFlow mcf = new MinCostFlow(bb.length);
+		MinCostFlow mcf = new MinCostFlow(bb, cc);
+//		long mcfDist = mcf.compute(bb, cc, flows);
+//		long mcfDist = mcf.compute(bb, cc);
+//		long mcfDist = mcf.compute();
+		long mcfDist = mcf.getDistance();
 		
-		MinCostFlow mcf = new MinCostFlow(bb.length);
-		long mcfDist = mcf.compute(bb, cc, flows);
-		long myDist = preFlowCost + // pre-flowing on cases where it was possible
-				mcfDist + // solution of the transportation problem
-				(absDiffSumPSumQ * extraMassPenalty); // emd-hat extra mass penalty
+		long myDist = preFlowCost + 		// pre-flowing on cases where it was possible
+				mcfDist + 					// solution of the transportation problem
+				(absDiffSumPSumQ * emp); 	// emd-hat extra mass penalty
 
 		return myDist;
 	}
-    
-	private double emdHat(double[] P, double[] Q, double[][] C, double extraMassPenalty) {
-		// This condition should hold:
-		// ( 2^(sizeof(CONVERT_TO_T*8)) >= ( MULT_FACTOR^2 )
-		// Note that it can be problematic to check it because
-		// of overflow problems. I simply checked it with Linux calc
-		// which has arbitrary precision.
-		final double MULT_FACTOR = 1000000;
 
-		// Constructing the input
-		final int N = P.length;
-		long[] iP = new long[N];
-		long[] iQ = new long[N];
-		
-		long[][] iC = new long[N][N];
-
-		// Converting to CONVERT_TO_T
-		double sumP = 0.0;
-		double sumQ = 0.0;
-		double maxC = C[0][0];
-		for (int i = 0; i < N; i++) {
-			sumP += P[i];
-			sumQ += Q[i];
-			for (int j = 0; j < N; j++) {
-				if (C[i][j] > maxC) {
-					maxC = C[i][j];
-				}
-			}
-		}
-		double minSum = Math.min(sumP, sumQ);
-		double maxSum = Math.max(sumP, sumQ);
-		double PQnormFactor = MULT_FACTOR / maxSum;
-		double CnormFactor = MULT_FACTOR / maxC;
-		for (int i = 0; i < N; i++) {
-			iP[i] = Math.round(P[i] * PQnormFactor);
-			iQ[i] = Math.round(Q[i] * PQnormFactor);
-			for (int j = 0; j < N; j++) {
-				iC[i][j] = Math.round(C[i][j] * CnormFactor);
-			}
-		}
-
-		// computing distance without extra mass penalty
-		double dist = emdHatImpl(iP, iQ, iC, 0);
-		// unnormalize
-		dist = dist / PQnormFactor;
-		dist = dist / CnormFactor;
-
-		// adding extra mass penalty
-//		if (extraMassPenalty == -1) {	// TODO: check role/type of extraMassPenalty!
-//			extraMassPenalty = maxC;
-//		}
-		
-		double emp = (extraMassPenalty < 0) ? maxC : extraMassPenalty;
-		dist += (maxSum - minSum) * emp;
-
-		return dist;
-	}
 }

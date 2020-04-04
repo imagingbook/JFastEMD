@@ -11,20 +11,42 @@ import imagingbook.jfastemd.Edges.EdgeWithFlow;
 
 
 class MinCostFlow {
+
+	private final long[] e;					// e - supply(positive) and demand(negative).
+	private final List<Edge>[] c;			// c[i] - edges that goes from node i. first is the second node
+	private final List<EdgeWithFlow>[] x;	// x - the flow is returned in it
+	
 	private final int numNodes;
 	private final int[] nodesToQ;
-	
-	MinCostFlow(int numNodes) {
-		this.numNodes = numNodes;
+	private final long distance;
+
+	@SuppressWarnings("unchecked")
+	MinCostFlow(long[] e, List<Edge>[] c) {
+		if (e.length != c.length)
+			throw new IllegalArgumentException("Lengths of e, c do not match!");
+		this.numNodes = e.length;
+		this.e = e;
+		this.c = c;
+		this.x = new List[numNodes];
 		this.nodesToQ = new int[numNodes];
+		this.distance = compute();
 	}
 
-	// e - supply(positive) and demand(negative).
-	// c[i] - edges that goes from node i. first is the second node
-	// x - the flow is returned in it
-	long compute(long[] e, List<Edge>[] c, List<EdgeWithFlow>[] x) {
-		if (e.length != numNodes || c.length != numNodes || c.length != numNodes) {
-			throw new IllegalArgumentException("Either e, c or x is not of expected length " + numNodes);
+	// ----------------------------------------------------------------------------
+
+	public long getDistance() {
+		return this.distance;
+	}
+
+	public List<EdgeWithFlow>[] getFlow() {	// TODO: return flow as a matrix?
+		return x;
+	}
+
+	// ----------------------------------------------------------------------------
+
+	private long compute() {
+		for (int i = 0; i < e.length; i++) {
+			x[i] = new LinkedList<EdgeWithFlow>();
 		}
 
 		// init flow
@@ -72,8 +94,8 @@ class MinCostFlow {
 			}
 		}
 
-		long[] d = new long[numNodes];
-		int[] prev = new int[numNodes];
+		final long[] d = new long[numNodes];
+		final int[] prev = new int[numNodes];
 
 		long delta = 1;
 		while (true) { // until we break when S or T is empty
@@ -163,37 +185,37 @@ class MinCostFlow {
 
 	// --------------------------------------------------------------------------------------
 
-	int computeShortestPath(long[] d, int[] prev, int from, 
+	private int computeShortestPath(long[] d, int[] prev, int from, 
 			List<EdgeReducedForward>[] costForward, List<EdgeReducedBackward>[] costBackward, long[] e) {
 
 		// Making heap (all inf except 0, so we are saving comparisons...)
-		List<Edge> Q = new ArrayList<Edge>();
+		final List<Edge> Q = new ArrayList<Edge>(numNodes);
 		for (int i = 0; i < numNodes; i++) {
 			Q.add(new Edge());
 		}
 
 		Q.get(0).to = from;
-		nodesToQ[from] = 0;
 		Q.get(0).cost = 0;
+		nodesToQ[from] = 0;
 
 		int j = 1;
 		// TODO: both of these into a function?
 		for (int i = 0; i < from; i++) {
 			Q.get(j).to = i;
-			nodesToQ[i] = j;
 			Q.get(j).cost = Long.MAX_VALUE;
+			nodesToQ[i] = j;
 			j++;
 		}
 
 		for (int i = from + 1; i < numNodes; i++) {
 			Q.get(j).to = i;
-			nodesToQ[i] = j;
 			Q.get(j).cost = Long.MAX_VALUE;
+			nodesToQ[i] = j;
 			j++;
 		}
 
-		boolean[] finalNodesFlg = new boolean[numNodes];	// finalNodesFlg[i] = false;
-		
+		final boolean[] finalNodesFlg = new boolean[numNodes];	// finalNodesFlg[i] = false;
+
 		int l = 0;
 		do {
 			int u = Q.get(0).to;
@@ -253,13 +275,13 @@ class MinCostFlow {
 				}
 			}
 		}
-		
+
 		return l;
 	}
 
 	// --------------------------------------------------------------------------------------
 
-	void heapDecreaseKey(List<Edge> Q, int[] nodes_to_Q, int v, long alt) {
+	private void heapDecreaseKey(List<Edge> Q, int[] nodes_to_Q, int v, long alt) {
 		int i = nodes_to_Q[v];
 		Q.get(i).cost = alt;
 		while (i > 0 && Q.get(PARENT(i)).cost > Q.get(i).cost) {
@@ -268,13 +290,13 @@ class MinCostFlow {
 		}
 	}
 
-	void heapRemoveFirst(List<Edge> Q, int[] nodes_to_Q) {
+	private void heapRemoveFirst(List<Edge> Q, int[] nodes_to_Q) {
 		swapHeap(Q, nodes_to_Q, 0, Q.size() - 1);
 		Q.remove(Q.size() - 1);
 		heapify(Q, nodes_to_Q, 0);
 	}	
-	
-	void heapify(List<Edge> Q, int[] nodes_to_Q, int i) {
+
+	private void heapify(List<Edge> Q, int[] nodes_to_Q, int i) {
 		while (true) {
 			// TODO: change to loop
 			int l = LEFT(i);
@@ -297,7 +319,7 @@ class MinCostFlow {
 		}
 	}
 
-	void swapHeap(List<Edge> Q, int[] nodesToQ, int i, int j) {
+	private void swapHeap(List<Edge> Q, int[] nodesToQ, int i, int j) {
 		Edge tmp = Q.get(i);
 		Q.set(i, Q.get(j));
 		Q.set(j, tmp);
@@ -305,15 +327,15 @@ class MinCostFlow {
 		nodesToQ[Q.get(i).to] = i;
 	}
 
-	int LEFT(int i) {
+	private int LEFT(int i) {
 		return 2 * (i + 1) - 1;
 	}
 
-	int RIGHT(int i) {
+	private int RIGHT(int i) {
 		return 2 * (i + 1); // 2 * (i + 1) + 1 - 1
 	}
 
-	int PARENT(int i) {
+	private int PARENT(int i) {
 		return (i - 1) / 2;
 	}
 }
