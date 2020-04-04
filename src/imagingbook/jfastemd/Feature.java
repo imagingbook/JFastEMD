@@ -3,7 +3,8 @@ package imagingbook.jfastemd;
 import java.util.Arrays;
 
 /**
- * This class represents a n-dimensional feature (position in feature space).
+ * Instances of this class represent a n-dimensional feature point (position in feature space).
+ * TODO: include weights here? why is a {@link Signature} needed at all?
  * @author WB
  *
  */

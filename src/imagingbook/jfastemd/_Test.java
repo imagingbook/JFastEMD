@@ -15,8 +15,10 @@ public class _Test {
     static Signature getSignature(double[] map, int bins) {
         // find number of entries in the sparse matrix
         int n = 0;
-        for (int x = 0; x < bins; x++) {
-            for (int y = 0; y < bins; y++) {
+        int cols = bins;
+        int rows = map.length / cols;
+        for (int y = 0; y < rows; y++) {
+        	for (int x = 0; x < cols; x++) {
                 if (getValue(map, x, y, bins) > 0) {
                     n++;
                 }
@@ -27,8 +29,8 @@ public class _Test {
         Feature[] features = new Feature[n];
         double[] weights = new double[n];
         int i = 0;
-        for (int x = 0; x < bins; x++) {
-            for (int y = 0; y < bins; y++) {
+        for (int y = 0; y < rows; y++) {
+        	for (int x = 0; x < cols; x++) {
                 double val = getValue(map, x, y, bins);
                 if (val > 0) {
                     Feature f = new Feature(x, y);
@@ -52,6 +54,9 @@ public class _Test {
     }
     
     // ----------------------------------------------------------------------------------------------------------
+    
+    static double[] x00 = {1,2,3,4};
+    static double[] x11 = {4,1,2,3};
     
 	static double[] a0 = { 1.0, 0.0, 0.0, 0.0 };
 	static double[] a1 = { 0.0, 1.0, 0.0, 0.0 };
@@ -97,11 +102,13 @@ public class _Test {
 
     public static void main(String[] args) {
     	long startTime = System.currentTimeMillis();
-        System.out.println("test 1: " + emdDist(a0, a0, 2) + " [expected: 0.0]");
+        System.out.println("test 0: " + emdDist(a0, a0, 2) + " [expected: 0.0]");
         System.out.println("test 1: " + emdDist(a0, a1, 2) + " [expected: 1.0]");
         System.out.println("test 2: " + emdDist(a0, a2, 2) + " [expected: 2.0]");
         System.out.println("test 3: " + emdDist(b0, b1, 10) + " [expected: 19.1921]");
         System.out.println("test 4: " + emdDist(b0, b2, 10) + " [expected: 25.7637]");
+        System.out.println("test 5: " + emdDist(x00, x00, 4) + " [expected: 0.0]");
+        System.out.println("test 6: " + emdDist(x00, x11, 4) + " [expected: 6.0]");
         System.out.println("Time spent (ms): " + (System.currentTimeMillis() - startTime));
     }
 }

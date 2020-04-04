@@ -115,6 +115,7 @@ public class JFastEMD2 {
 		this(signature1, signature2, -1);
 	}
 
+	// TODO: remove Signature, use original map (array) as input.
 	public JFastEMD2(Signature signature1, Signature signature2, double extraMassPenalty) {
 		this.n1 = signature1.getNumberOfFeatures();
 		this.n2 = signature2.getNumberOfFeatures();
