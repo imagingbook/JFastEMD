@@ -1,7 +1,9 @@
 package imagingbook.jfastemd;
 
+import java.util.Arrays;
+
 /**
- * This class represents a n-dimensional feature.
+ * This class represents a n-dimensional feature (position in feature space).
  * @author WB
  *
  */
@@ -17,7 +19,7 @@ public class Feature {
     	return this.x;
     }
     
-    public double getVal(int k) {
+    public double getElement(int k) {
     	return this.x[k];
     }
     
@@ -31,6 +33,10 @@ public class Feature {
 	        sum = sum + d * d;
     	}
     	return Math.sqrt(sum);
+    }
+    
+    public String toString() {
+    	return Arrays.toString(x);
     }
     
 }

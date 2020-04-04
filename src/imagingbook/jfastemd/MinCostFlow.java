@@ -228,7 +228,7 @@ class MinCostFlow {
 				}
 			}
 
-		} while (Q.size() > 0);
+		} while (!Q.isEmpty()); //(Q.size() > 0);
 
 		for (int _from = 0; _from < numNodes; _from++) {
 			for (EdgeReducedForward it : costForward[_from]) {
@@ -272,10 +272,10 @@ class MinCostFlow {
 		swapHeap(Q, nodes_to_Q, 0, Q.size() - 1);
 		Q.remove(Q.size() - 1);
 		heapify(Q, nodes_to_Q, 0);
-	}
-
+	}	
+	
 	void heapify(List<Edge> Q, int[] nodes_to_Q, int i) {
-		do {
+		while (true) {
 			// TODO: change to loop
 			int l = LEFT(i);
 			int r = RIGHT(i);
@@ -290,12 +290,11 @@ class MinCostFlow {
 			}
 
 			if (smallest == i)
-				return;
+				break;
 
 			swapHeap(Q, nodes_to_Q, i, smallest);
 			i = smallest;
-
-		} while (true);
+		}
 	}
 
 	void swapHeap(List<Edge> Q, int[] nodesToQ, int i, int j) {

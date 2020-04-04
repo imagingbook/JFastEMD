@@ -5,6 +5,8 @@ package imagingbook.jfastemd;
  *
  */
 public class _Test {
+	
+	static boolean PRINT_SIGNATURES = false;
 
     static double getValue(double[] map, int x, int y, int bins) {
         return map[(y * bins) + x];
@@ -42,6 +44,10 @@ public class _Test {
     static double emdDist(double[] map1, double[] map2, int bins) {
         Signature sig1 = getSignature(map1, bins);
         Signature sig2 = getSignature(map2, bins);
+        if (PRINT_SIGNATURES) {
+    		sig1.print("Signature1");
+    		sig2.print("Signature2");
+    	}
         return new JFastEMD2(sig1, sig2).getDistance();
     }
     

@@ -31,7 +31,7 @@ import imagingbook.jfastemd.Edges.EdgeWithFlow;
  * "http://www.cs.duke.edu/~tomasi/software/emd.htm">http://www.cs.duke.edu/~tomasi/software/emd.htm</a>)
  * and Pele
  * (<a href="http://ofirpele.droppages.com/">http://ofirpele.droppages.com/</a>,
- * as described in the original note below. Note the license
+ * as described in the original note below.
  * 
  * <p>
  * <strong>Original Note:</strong>
@@ -148,37 +148,7 @@ public class JFastEMD2 {
 	}
 
 	public double getDistance() {
-
-//		final int n1 = signature1.getNumberOfFeatures();
-//		final int n2 = signature2.getNumberOfFeatures();
-		
-//		double[] P = new double[n1 + n2];
-//		double[] Q = new double[n1 + n2];
-
-//		for (int i = 0; i < n1; i++) {
-//			P[i] = signature1.getWeights()[i];
-//		}
-//
-//		for (int j = 0; j < n2; j++) {
-//			Q[j + n1] = signature2.getWeights()[j];
-//		}
-//
-//		double[][] C = new double[P.length][P.length];
-//		
-//		Feature[] features1 = signature1.getFeatures();
-//		Feature[] features2 = signature2.getFeatures();
-//		
-//		for (int i = 0; i < n1; i++) {
-//			for (int j = 0; j < n2; j++) {
-//				double dist = features1[i].groundDist(features2[j]);
-//				assert (dist >= 0);
-//				C[i][j + n1] = dist;
-//				C[j + n1][i] = dist;
-//			}
-//		}
-
 		return emdHat(P, Q, C, extraMassPenalty);
-		
 	}
 
  // ------------------------------------------------------------------
@@ -186,8 +156,6 @@ public class JFastEMD2 {
     private long emdHatImpl(long[] Pc, long[] Qc, long[][] C, long extraMassPenalty) {
 		final int N = Pc.length;
 		assert (Qc.length == N);
-		
-//		System.out.println("emdHatImpl: N = " + N);
 
 		// Ensuring that the supplier - P, have more mass.
 		// Note that we assume here that C is symmetric
@@ -433,7 +401,6 @@ public class JFastEMD2 {
 //		}
 		
 		double emp = (extraMassPenalty < 0) ? maxC : extraMassPenalty;
-//		dist += (maxSum - minSum) * extraMassPenalty;
 		dist += (maxSum - minSum) * emp;
 
 		return dist;

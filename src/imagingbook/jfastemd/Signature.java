@@ -30,5 +30,12 @@ public class Signature {
     public double[] getWeights() {
         return weights;
     }
+    
+    public void print(String name) {
+    	System.out.println("Signature: " + name);
+    	for (int i = 0; i < features.length; i++) {
+    		System.out.format("   %3d: %s w = %.3f\n", i, features[i].toString(), weights[i]);
+    	}
+    }
 
 }
