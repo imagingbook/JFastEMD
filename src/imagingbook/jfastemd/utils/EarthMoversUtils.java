@@ -15,20 +15,16 @@ public class EarthMoversUtils {
     static Random random = new Random();
     
     public static double[] randomVector(int size) {
-        
         double[] vector = new double[size];
-        
         for(int i = 0 ; i < size ; i++) {
             vector[i] = random.nextDouble() % 10;
         }
-        
         return vector;
     }
     
     public static double[][] matrix(double[] a, double[] b) {
-        
-        int size = a.length >= b.length ? a.length : b.length;
-        
+//        int size = a.length >= b.length ? a.length : b.length;
+        int size = Math.max(a.length, b.length);
         double matrix[][] = new double[size][size];
         
         for(int i = 0 ; i < size ; i++) {
@@ -36,23 +32,31 @@ public class EarthMoversUtils {
                 matrix[i][j] = random.nextDouble() % 10;
             }
         }
-        
         return matrix;
     }
+    
+    // bridge to original JFastEMD ---------------------------------------------------------
     
     static Vector<Double> makeVector(double[] a) {
         return new Vector<>(DoubleStream.of(a).boxed().collect(Collectors.toList()));
     }
     
-    public static double jfastemd(double[] a, double[] b, double[][] matrix, double mass) {
-        Vector<Double> vecA = makeVector(a);
-        Vector<Double> vecB = makeVector(b);
-        Vector<Vector<Double>> vecMatrix = new Vector<>();
-        
+    static Vector<Vector<Double>> makeMatrix(double[][] matrix) {
+    	Vector<Vector<Double>> vecMatrix = new Vector<>();      
         for(double[] array : matrix) {
             vecMatrix.add(makeVector(array));
-        }
-        
+        }       
+    	return vecMatrix;
+    }
+    
+    public static double jfastemd(double[] A, double[] B, double[][] M, double mass) {
+        Vector<Double> vecA = makeVector(A);
+        Vector<Double> vecB = makeVector(B);
+        Vector<Vector<Double>> vecMatrix = makeMatrix(M);
+//        Vector<Vector<Double>> vecMatrix = new Vector<>();      
+//        for(double[] array : matrix) {
+//            vecMatrix.add(makeVector(array));
+//        }       
         return JFastEMD.emdHat(vecA, vecB, vecMatrix, mass);
     }
     

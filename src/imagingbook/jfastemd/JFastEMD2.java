@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Set;
 
 import imagingbook.jfastemd.Edges.Edge;
-import imagingbook.jfastemd.Edges.EdgeWithFlow;
 
 /**
  * This is a refactored version of the <strong>JFastEMD</strong> Java
@@ -114,6 +113,7 @@ public class JFastEMD2 {
 	private final double[][] C;
 	private final double extraMassPenalty;
 
+	@Deprecated
 	public JFastEMD2(Signature signature1, Signature signature2) {
 		this(signature1, signature2, -1);
 	}
@@ -153,6 +153,13 @@ public class JFastEMD2 {
 		}
 	}
 	
+	/**
+	 * Constructor.
+	 * @param P an array of M source weights (quantities)
+	 * @param Q an array of N target weights (quantities)
+	 * @param C a M x N cost matrix, with C[i,j] being the cost of shipping from location i to j
+	 * @param extraMassPenalty the amount extra mass penalty (must be positive)
+	 */
 	public JFastEMD2(double[] P, double[] Q, double[][] C, double extraMassPenalty) {
 		this.P = P;
 		this.Q = Q;
@@ -343,9 +350,6 @@ public class JFastEMD2 {
 		
 		int[] nodesNewNames = new int[b.length];
 		Arrays.fill(nodesNewNames, REMOVE_NODE_FLAG);
-//		for (int i = 0; i < b.length; i++) {
-//			nodesNewNames[i] = REMOVE_NODE_FLAG;
-//		}
 
 		// remove nodes with supply demand of 0
 		// and vertexes that are connected only to the
