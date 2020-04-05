@@ -1,7 +1,10 @@
 
 	http://robotics.stanford.edu/~rubner/demo.html
 	https://cran.r-project.org/web/packages/transport/
+	
+	https://github.com/Hipparchus-Math/hipparchus
 	https://hipparchus.org/apidocs-1.4/org/hipparchus/clustering/distance/EarthMoversDistance.html
+	
 	https://wikivisually.com/wiki/Earth_mover%27s_distance
 	https://github.com/jinhuang/melody-join
 	http://jonvolkmar.com/portfolio/image-retrieval-earth-movers-distance/

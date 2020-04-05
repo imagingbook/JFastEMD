@@ -1,4 +1,4 @@
-package imagingbook.jfastemd;
+package imagingbook.jfastemd.signatures;
 
 /**
  * @author Telmo Menezes (telmo@telmomenezes.com)
@@ -50,7 +50,7 @@ public class _Test {
     		sig1.print("Signature1");
     		sig2.print("Signature2");
     	}
-        return new JFastEMD2(sig1, sig2).getDistance();
+        return  JFastEMD.create(sig1, sig2).getDistance();
     }
     
     // ----------------------------------------------------------------------------------------------------------

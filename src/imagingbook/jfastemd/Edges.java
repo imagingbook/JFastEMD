@@ -2,7 +2,7 @@ package imagingbook.jfastemd;
 
 /**
  * @author Telmo Menezes (telmo@telmomenezes.com)
- *
+ * @author Wilbur (refactored)
  */
 
 abstract class Edges {

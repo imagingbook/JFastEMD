@@ -1,4 +1,4 @@
-package imagingbook.jfastemd;
+package imagingbook.jfastemd.signatures;
 
 import java.util.Arrays;
 

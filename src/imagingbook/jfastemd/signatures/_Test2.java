@@ -1,4 +1,4 @@
-package imagingbook.jfastemd;
+package imagingbook.jfastemd.signatures;
 
 /**
  * Test defining data as 1- and 2-dimensional matrices.
@@ -47,13 +47,13 @@ public class _Test2 {
     static double emdDist(double[] map1, double[] map2) {
     	Signature sig1 = Signature.create(map1);
         Signature sig2 = Signature.create(map2);
-        return new JFastEMD2(sig1, sig2).getDistance();
+        return  JFastEMD.create(sig1, sig2).getDistance();
     }
     
     static double emdDist(double[][] map1, double[][] map2) {
         Signature sig1 = Signature.create(map1);
         Signature sig2 = Signature.create(map2);
-        return new JFastEMD2(sig1, sig2).getDistance();
+        return  JFastEMD.create(sig1, sig2).getDistance();
     }
     
     // ----------------------------------------------------------------------------------------------------------

@@ -112,46 +112,6 @@ public class JFastEMD2 {
 	private final double[] P, Q;
 	private final double[][] C;
 	private final double extraMassPenalty;
-
-	@Deprecated
-	public JFastEMD2(Signature signature1, Signature signature2) {
-		this(signature1, signature2, -1);
-	}
-
-	// TODO: remove Signature, use original map (array) as input.
-	@Deprecated
-	public JFastEMD2(Signature signature1, Signature signature2, double extraMassPenalty) {
-		int n1 = signature1.getNumberOfFeatures();
-		int n2 = signature2.getNumberOfFeatures();
-		this.P = new double[n1 + n2];
-		this.Q = new double[n1 + n2];
-		this.C = new double[P.length][P.length];
-		this.extraMassPenalty = extraMassPenalty;
-		init(signature1, signature2);
-	}
-
-	private void init(Signature signature1, Signature signature2) {
-		int n1 = signature1.getNumberOfFeatures();
-		int n2 = signature2.getNumberOfFeatures();
-		for (int i = 0; i < n1; i++) {
-			P[i] = signature1.getWeights()[i];
-		}
-
-		for (int j = 0; j < n2; j++) {
-			Q[j + n1] = signature2.getWeights()[j];
-		}
-
-		Feature[] f1 = signature1.getFeatures();
-		Feature[] f2 = signature2.getFeatures();
-
-		for (int i = 0; i < n1; i++) {
-			for (int j = 0; j < n2; j++) {
-				double dist = f1[i].groundDist(f2[j]);
-				C[i][j + n1] = dist;
-				C[j + n1][i] = dist;
-			}
-		}
-	}
 	
 	/**
 	 * Constructor.
@@ -336,10 +296,6 @@ public class JFastEMD2 {
 			c[i].add(new Edge(THRESHOLD_NODE, 0));
 			c[THRESHOLD_NODE].add(new Edge(i + N, maxC));
 		}
-		
-//		for (int j = 0; j < N; ++j) {
-//			c[THRESHOLD_NODE].add(new Edge(j + N, maxC));
-//		}
 
 		// artificial arcs - Note the restriction that only one edge i,j is
 		// artificial so I ignore it...
@@ -403,7 +359,6 @@ public class JFastEMD2 {
 		}
 	
 		long mcfDist = new MinCostFlow(bb, cc).getDistance();
-		
 		long emp = (extraMassPenalty == -1) ? maxC : extraMassPenalty;
 		
 		return preFlowCost + 			// pre-flowing on cases where it was possible
