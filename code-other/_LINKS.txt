@@ -1,0 +1,9 @@
+
+	http://robotics.stanford.edu/~rubner/demo.html
+	https://cran.r-project.org/web/packages/transport/
+	https://hipparchus.org/apidocs-1.4/org/hipparchus/clustering/distance/EarthMoversDistance.html
+	https://wikivisually.com/wiki/Earth_mover%27s_distance
+	https://github.com/jinhuang/melody-join
+	http://jonvolkmar.com/portfolio/image-retrieval-earth-movers-distance/
+	https://gitlab.com/locpriv/ibu
+	https://github.com/crtomirmajer/wmd4j/blob/master/src/main/java/com/crtomirmajer/wmd4j/emd/EarthMovers.java

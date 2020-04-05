@@ -12,6 +12,7 @@
 
 package imagingbook.jfastemd;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -105,8 +106,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
 public class JFastEMD2 {
+	
+	private static final double MULT_FACTOR = 1000000;
+	private static final int REMOVE_NODE_FLAG = -1;	// as I'm using -1 as a special flag !!!
 
-	private final int n1, n2;
 	private final double[] P, Q;
 	private final double[][] C;
 	private final double extraMassPenalty;
@@ -116,9 +119,10 @@ public class JFastEMD2 {
 	}
 
 	// TODO: remove Signature, use original map (array) as input.
+	@Deprecated
 	public JFastEMD2(Signature signature1, Signature signature2, double extraMassPenalty) {
-		this.n1 = signature1.getNumberOfFeatures();
-		this.n2 = signature2.getNumberOfFeatures();
+		int n1 = signature1.getNumberOfFeatures();
+		int n2 = signature2.getNumberOfFeatures();
 		this.P = new double[n1 + n2];
 		this.Q = new double[n1 + n2];
 		this.C = new double[P.length][P.length];
@@ -127,6 +131,8 @@ public class JFastEMD2 {
 	}
 
 	private void init(Signature signature1, Signature signature2) {
+		int n1 = signature1.getNumberOfFeatures();
+		int n2 = signature2.getNumberOfFeatures();
 		for (int i = 0; i < n1; i++) {
 			P[i] = signature1.getWeights()[i];
 		}
@@ -146,6 +152,13 @@ public class JFastEMD2 {
 			}
 		}
 	}
+	
+	public JFastEMD2(double[] P, double[] Q, double[][] C, double extraMassPenalty) {
+		this.P = P;
+		this.Q = Q;
+		this.C = C;
+		this.extraMassPenalty = extraMassPenalty;
+	}
 
 	// ------------------------------------------------------------------
 
@@ -161,16 +174,14 @@ public class JFastEMD2 {
 		// Note that it can be problematic to check it because
 		// of overflow problems. I simply checked it with Linux calc
 		// which has arbitrary precision.
-		final double MULT_FACTOR = 1000000;
-
+		
 		// Constructing the input
 		final int N = P.length;
-		long[][] iC = new long[N][N];
-
-		// Converting to CONVERT_TO_T
+		
 		double sumP = 0.0;
 		double sumQ = 0.0;
 		double maxC = C[0][0];
+		
 		for (int i = 0; i < N; i++) {
 			sumP += P[i];
 			sumQ += Q[i];
@@ -183,10 +194,12 @@ public class JFastEMD2 {
 
 		long[] iP = new long[N];
 		long[] iQ = new long[N];
+		long[][] iC = new long[N][N];
+		
 		double minSum = Math.min(sumP, sumQ);
 		double maxSum = Math.max(sumP, sumQ);
 		double PQnormFactor = MULT_FACTOR / maxSum;
-		double CnormFactor = MULT_FACTOR / maxC;
+		double CnormFactor =  MULT_FACTOR / maxC;
 		for (int i = 0; i < N; i++) {
 			iP[i] = Math.round(P[i] * PQnormFactor);
 			iQ[i] = Math.round(Q[i] * PQnormFactor);
@@ -196,10 +209,9 @@ public class JFastEMD2 {
 		}
 
 		// computing distance without extra mass penalty
-		double dist = emdHatImpl(iP, iQ, iC, 0);
+		double dist = emdHat(iP, iQ, iC, 0);
 		// unnormalize
-		dist = dist / PQnormFactor;
-		dist = dist / CnormFactor;
+		dist = dist / PQnormFactor / CnormFactor;
 
 		// adding extra mass penalty
 		double emp = (extraMassPenalty < 0) ? maxC : extraMassPenalty;
@@ -212,10 +224,11 @@ public class JFastEMD2 {
 	/**
 	 * EMD implementation using integer (long) quantities.
 	 */
-	private long emdHatImpl(long[] Pc, long[] Qc, long[][] C, long extraMassPenalty) {
+	private long emdHat(long[] Pc, long[] Qc, long[][] C, long extraMassPenalty) {
 		if (Pc.length != Qc.length) {
 			throw new IllegalArgumentException("Pc, Qc must be of same length!");
 		}
+		
 		final int N = Pc.length;
 
 		// Ensuring that the supplier - P, have more mass.
@@ -232,6 +245,7 @@ public class JFastEMD2 {
 
 		long[] P, Q;
 		long absDiffSumPSumQ;
+		
 		if (sumQ > sumP) {
 			P = Qc;
 			Q = Pc;
@@ -247,6 +261,7 @@ public class JFastEMD2 {
 		final int THRESHOLD_NODE = 2 * N;
 		final int ARTIFICIAL_NODE = 2 * N + 1; // need to be last !
 
+//		System.arraycopy(P, 0, b, 0, N);	
 		for (int i = 0; i < N; i++) {
 			b[i] = P[i];
 		}
@@ -276,27 +291,17 @@ public class JFastEMD2 {
 			}
 		}
 
-		Set<Integer> sourcesThatFlowNotOnlyToThresh = new HashSet<Integer>();
-		Set<Integer> sinksThatGetFlowNotOnlyFromThresh = new HashSet<Integer>();
+		Set<Integer> sourcesThatFlowNotOnlyToThresh = new HashSet<>();
+		Set<Integer> sinksThatGetFlowNotOnlyFromThresh = new HashSet<>();
 
 		// regular edges between sinks and sources without threshold edges
 		@SuppressWarnings("unchecked")
 		List<Edge>[] c = new LinkedList[b.length];
+		
 		for (int i = 0; i < b.length; i++) {
 			c[i] = new LinkedList<Edge>();
 		}
-		for (int i = 0; i < N; i++) {
-			if (b[i] == 0)
-				continue;
-			for (int j = 0; j < N; j++) {
-				if (b[j + N] == 0)
-					continue;
-				if (C[i][j] == maxC)
-					continue;
-				c[i].add(new Edge(j + N, C[i][j]));
-			}
-		}
-
+		
 		// checking which are not isolated
 		for (int i = 0; i < N; i++) {
 			if (b[i] == 0)
@@ -306,6 +311,7 @@ public class JFastEMD2 {
 					continue;
 				if (C[i][j] == maxC)
 					continue;
+				c[i].add(new Edge(j + N, C[i][j]));
 				sourcesThatFlowNotOnlyToThresh.add(i);
 				sinksThatGetFlowNotOnlyFromThresh.add(j + N);
 			}
@@ -319,12 +325,14 @@ public class JFastEMD2 {
 		// add edges from/to threshold node,
 		// note that costs are reversed to the paper (see also remark* above)
 		// It is important that it will be this way because of remark* above.
-		for (int i = 0; i < N; ++i) {
+		for (int i = 0; i < N; i++) {
 			c[i].add(new Edge(THRESHOLD_NODE, 0));
+			c[THRESHOLD_NODE].add(new Edge(i + N, maxC));
 		}
-		for (int j = 0; j < N; ++j) {
-			c[THRESHOLD_NODE].add(new Edge(j + N, maxC));
-		}
+		
+//		for (int j = 0; j < N; ++j) {
+//			c[THRESHOLD_NODE].add(new Edge(j + N, maxC));
+//		}
 
 		// artificial arcs - Note the restriction that only one edge i,j is
 		// artificial so I ignore it...
@@ -332,16 +340,12 @@ public class JFastEMD2 {
 			c[i].add(new Edge(ARTIFICIAL_NODE, maxC + 1));
 			c[ARTIFICIAL_NODE].add(new Edge(i, maxC + 1));
 		}
-
-
-		// Note here it should be vector<int> and not vector<int>
-		// as I'm using -1 as a special flag !!!
-		final int REMOVE_NODE_FLAG = -1;
+		
 		int[] nodesNewNames = new int[b.length];
-
-		for (int i = 0; i < b.length; i++) {
-			nodesNewNames[i] = REMOVE_NODE_FLAG;
-		}
+		Arrays.fill(nodesNewNames, REMOVE_NODE_FLAG);
+//		for (int i = 0; i < b.length; i++) {
+//			nodesNewNames[i] = REMOVE_NODE_FLAG;
+//		}
 
 		// remove nodes with supply demand of 0
 		// and vertexes that are connected only to the
@@ -351,8 +355,7 @@ public class JFastEMD2 {
 
 		for (int i = 0; i < N * 2; i++) {
 			if (b[i] != 0) {
-				if (sourcesThatFlowNotOnlyToThresh.contains(i)
-						|| sinksThatGetFlowNotOnlyFromThresh.contains(i)) {
+				if (sourcesThatFlowNotOnlyToThresh.contains(i) || sinksThatGetFlowNotOnlyFromThresh.contains(i)) {
 					nodesNewNames[i] = currentNodeName;
 					currentNodeName++;
 				} else {
@@ -381,6 +384,7 @@ public class JFastEMD2 {
 
 		@SuppressWarnings("unchecked")
 		List<Edge>[] cc = new List[bb.length];
+		
 		for (int i = 0; i < bb.length; i++) {
 			cc[i] = new LinkedList<Edge>();
 		}
@@ -393,29 +397,14 @@ public class JFastEMD2 {
 				}
 			}
 		}
-
-//		@SuppressWarnings("unchecked")
-//		List<EdgeWithFlow>[] flows = new LinkedList[bb.length];
-//		for (int i = 0; i < bb.length; i++) {
-//			flows[i] = new LinkedList<EdgeWithFlow>();
-//		}
-
-		//		if (extraMassPenalty == -1)
-		//			extraMassPenalty = maxC;	
-		long emp = (extraMassPenalty == -1) ? maxC : extraMassPenalty;
-
-//		MinCostFlow mcf = new MinCostFlow(bb.length);
-		MinCostFlow mcf = new MinCostFlow(bb, cc);
-//		long mcfDist = mcf.compute(bb, cc, flows);
-//		long mcfDist = mcf.compute(bb, cc);
-//		long mcfDist = mcf.compute();
-		long mcfDist = mcf.getDistance();
+	
+		long mcfDist = new MinCostFlow(bb, cc).getDistance();
 		
-		long myDist = preFlowCost + 		// pre-flowing on cases where it was possible
-				mcfDist + 					// solution of the transportation problem
-				(absDiffSumPSumQ * emp); 	// emd-hat extra mass penalty
-
-		return myDist;
+		long emp = (extraMassPenalty == -1) ? maxC : extraMassPenalty;
+		
+		return preFlowCost + 			// pre-flowing on cases where it was possible
+			mcfDist + 					// solution of the transportation problem
+			(absDiffSumPSumQ * emp); 	// emd-hat extra mass penalty
 	}
 
 }

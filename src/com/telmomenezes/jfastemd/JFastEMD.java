@@ -290,7 +290,7 @@ public class JFastEMD {
         return myDist;
     }
 
-    static private double emdHat(Vector<Double> P, Vector<Double> Q, Vector<Vector<Double>> C,
+    public static double emdHat(Vector<Double> P, Vector<Double> Q, Vector<Vector<Double>> C,
             double extraMassPenalty) {
 
         // This condition should hold:
