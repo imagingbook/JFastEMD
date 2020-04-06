@@ -143,6 +143,7 @@ public class _Test2 {
         System.out.println("test 6: " + emdDist(x00, x11) + " [expected: 6.0]");
         System.out.println("Time spent (ms): " + (System.currentTimeMillis() - startTime));
     }
+    
 }
 
 /*
