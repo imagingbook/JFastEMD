@@ -9,7 +9,7 @@ package imagingbook.jfastemd.onedim;
 public class Emd1D {
 
 	// Apache version
-	static double compute1(double[] P, double[] Q) {
+	static double compute0(double[] P, double[] Q) {
 		double EMDi = 0;
 		double totalDistance = 0;
 		for (int i = 0; i < P.length; i++) {
@@ -19,14 +19,49 @@ public class Emd1D {
 		}
 		return totalDistance;
 	}
+	
+	// Apache version renamed variables
+	static double compute1(double[] P, double[] Q) {
+		double d = 0;
+		double emd = 0;
+		for (int i = 0; i < P.length; i++) {
+			d = (P[i] + d) - Q[i];
+			emd += Math.abs(d);
+		}
+		return emd;
+	}
 
-	// Wilbu's version
+	// Wilbur's version A
 	static double compute2(double[] P, double[] Q) {
 		double dk = 0;
 		double emd = 0;
 		for (int k = 1; k <= P.length; k++) {
-			dk = P[k-1] + dk - Q[k-1];
+			dk = dk + P[k-1] - Q[k-1];
 			emd += Math.abs(dk);
+		}
+		return emd;
+	}
+	
+	// Wilbur's version B
+	static double compute3(double[] P, double[] Q) {
+		double dk = P[0] - Q[0];
+		double emd = Math.abs(dk);
+		for (int k = 1; k < P.length; k++) {
+			dk = dk + P[k] - Q[k];
+			emd += Math.abs(dk);
+		}
+		return emd;
+	}
+	
+	// Wilbur's version C
+	static double compute4(double[] P, double[] Q) {
+		double PP = 0;	// cumulative P
+		double QQ = 0;	// cumulative Q
+		double emd = 0;
+		for (int k = 0; k < P.length; k++) {
+			PP = PP + P[k];
+			QQ = QQ + Q[k];
+			emd += Math.abs(PP - QQ);
 		}
 		return emd;
 	}
@@ -47,6 +82,18 @@ public class Emd1D {
 		System.out.println("compute1 = " + compute2(Q, Q));
 		System.out.println("compute2 = " + compute2(P, Q));
 		System.out.println("compute2 = " + compute2(Q, P));
+		
+		System.out.println();
+		System.out.println("compute1 = " + compute3(P, P));
+		System.out.println("compute1 = " + compute3(Q, Q));
+		System.out.println("compute2 = " + compute3(P, Q));
+		System.out.println("compute2 = " + compute3(Q, P));
+		
+		System.out.println();
+		System.out.println("compute1 = " + compute4(P, P));
+		System.out.println("compute1 = " + compute4(Q, Q));
+		System.out.println("compute2 = " + compute4(P, Q));
+		System.out.println("compute2 = " + compute4(Q, P));
 		
 	}
 
