@@ -34,7 +34,8 @@ public abstract class JFastEMD {
 	}
 	
 	public static JFastEMD2 create(Signature signature1, Signature signature2) {
-		return create(signature1, signature2, -1);
+//		return create(signature1, signature2, -1);
+		return create(signature1, signature2, 0);
 	}
 
 }

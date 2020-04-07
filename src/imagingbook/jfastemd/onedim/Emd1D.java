@@ -20,7 +20,7 @@ public class Emd1D {
 		return totalDistance;
 	}
 	
-	// Apache version renamed variables
+	// Apache refactored: Wilbur preferred! -------------------------------------
 	static double compute1(double[] P, double[] Q) {
 		double d = 0;
 		double emd = 0;
@@ -30,6 +30,7 @@ public class Emd1D {
 		}
 		return emd;
 	}
+	// --------------------------------------------------------------------------
 
 	// Wilbur's version A
 	static double compute2(double[] P, double[] Q) {
@@ -67,34 +68,39 @@ public class Emd1D {
 	}
 	
 	
-	static double[] P = {0, 1, 3, 4, 0, 9};
-	static double[] Q = {3, 1, 4, 0, 4, 5};
+	static double[] P1 = {0, 1, 3, 4, 0, 9};
+	static double[] Q1 = {3, 1, 4, 0, 4, 5};
+	
+	static double[] P2 = {0, 4, 0, 0, 1, 0};
+	static double[] Q2 = {3, 0, 1, 0, 0, 1};
 	
 	public static void main(String[] args) {
 		
-		System.out.println("compute1 = " + compute1(P, P));
-		System.out.println("compute1 = " + compute1(Q, Q));
-		System.out.println("compute1 = " + compute1(P, Q));
-		System.out.println("compute1 = " + compute1(Q, P));
+//		System.out.println("compute1 = " + compute1(P1, P1));
+//		System.out.println("compute1 = " + compute1(Q1, Q1));
+		System.out.println("compute1 = " + compute1(P1, Q1));
+		System.out.println("compute1 = " + compute1(Q1, P1));
 		
-		System.out.println();
-		System.out.println("compute1 = " + compute2(P, P));
-		System.out.println("compute1 = " + compute2(Q, Q));
-		System.out.println("compute2 = " + compute2(P, Q));
-		System.out.println("compute2 = " + compute2(Q, P));
+//		System.out.println();
+//		System.out.println("compute2 = " + compute2(P1, P1));
+//		System.out.println("compute2 = " + compute2(Q1, Q1));
+//		System.out.println("compute2 = " + compute2(P1, Q1));
+//		System.out.println("compute2 = " + compute2(Q1, P1));
+//		
+//		System.out.println();
+//		System.out.println("compute3 = " + compute3(P1, P1));
+//		System.out.println("compute3 = " + compute3(Q1, Q1));
+//		System.out.println("compute3 = " + compute3(P1, Q1));
+//		System.out.println("compute3 = " + compute3(Q1, P1));
+//		
+//		System.out.println();
+//		System.out.println("compute4 = " + compute4(P1, P1));
+//		System.out.println("compute4 = " + compute4(Q1, Q1));
+//		System.out.println("compute4 = " + compute4(P1, Q1));
+//		System.out.println("compute4 = " + compute4(Q1, P1));
 		
-		System.out.println();
-		System.out.println("compute1 = " + compute3(P, P));
-		System.out.println("compute1 = " + compute3(Q, Q));
-		System.out.println("compute2 = " + compute3(P, Q));
-		System.out.println("compute2 = " + compute3(Q, P));
-		
-		System.out.println();
-		System.out.println("compute1 = " + compute4(P, P));
-		System.out.println("compute1 = " + compute4(Q, Q));
-		System.out.println("compute2 = " + compute4(P, Q));
-		System.out.println("compute2 = " + compute4(Q, P));
-		
+		System.out.println("compute1 = " + compute1(P2, Q2));
+		System.out.println("compute1 = " + compute1(Q2, P2));
 	}
 
 }

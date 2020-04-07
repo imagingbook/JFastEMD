@@ -131,6 +131,17 @@ public class _Test2 {
 			{ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
 			{ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 } };
 	
+	
+	// histogram examples
+	static double[] P1 = {0, 1, 3, 4, 0, 9};
+	static double[] Q1 = {3, 1, 4, 0, 4, 5};
+	
+	static double[] P2 = {0, 4, 0, 0, 1, 0};
+	static double[] Q2 = {2, 0, 1, 0, 0, 1};
+	
+	
+	
+	
 
     public static void main(String[] args) {
     	long startTime = System.currentTimeMillis();
@@ -141,6 +152,13 @@ public class _Test2 {
         System.out.println("test 4: " + emdDist(b00, b22) + " [expected: 25.7637]");
         System.out.println("test 5: " + emdDist(x00, x00) + " [expected: 0.0]");
         System.out.println("test 6: " + emdDist(x00, x11) + " [expected: 6.0]");
+        
+        System.out.println("test 7A: " + emdDist(P1, Q1) + " [expected: 14.0]");
+        System.out.println("test 7B: " + emdDist(Q1, P1) + " [expected: 14.0]");
+        
+        System.out.println("test 8A: " + emdDist(P2, Q2) + " [expected: 8.0]");
+        System.out.println("test 8B: " + emdDist(Q2, P2) + " [expected: 8.0]");
+        
         System.out.println("Time spent (ms): " + (System.currentTimeMillis() - startTime));
     }
     
@@ -152,4 +170,6 @@ test 1: 1.0 [expected: 1.0]
 test 2: 2.0 [expected: 2.0]
 test 3: 19.19207181614855 [expected: 19.1921]
 test 4: 25.763736318380168 [expected: 25.7637]
+test 5: 0.0 [expected: 0.0]
+test 6: 5.9999970000000005 [expected: 6.0]
 */
