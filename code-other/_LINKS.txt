@@ -10,3 +10,13 @@
 	http://jonvolkmar.com/portfolio/image-retrieval-earth-movers-distance/
 	https://gitlab.com/locpriv/ibu
 	https://github.com/crtomirmajer/wmd4j/blob/master/src/main/java/com/crtomirmajer/wmd4j/emd/EarthMovers.java
+	
+	https://github.com/isstaif/TransportationProblem/blob/master/TransportationProblem.java **
+	https://www.daniweb.com/programming/software-development/threads/414507/minimum-cost-algorithm
+	
+	https://github.com/KevinStern/software-and-algorithms/blob/master/src/main/java/blogspot/software_and_algorithms/stern_library/optimization/HungarianAlgorithm.java (runs in O(N^3))
+	https://github.com/HeuristicLab/HeuristicLab/blob/master/HeuristicLab.Problems.LinearAssignment/3.3/LinearAssignmentProblemSolver.cs
+	https://github.com/antifriz/hungarian-algorithm-n3/blob/master/src/HungarianAlgorithm.cs
+	https://ifors.ms.unimelb.edu.au/tutorial/hungarian/welcome_frame.html
+	
+	

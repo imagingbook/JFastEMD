@@ -27,7 +27,7 @@ public class JFastEmdVsEarthMoversPerformanceTestsMain {
         
         int repeats = 10000; // 10000;
         
-        System.out.println("size = 20" + size);
+        System.out.println("size = " + size);
         System.out.println("a = " + P.length);
         System.out.println("b = " + Q.length);
         System.out.println("m = " + C.length + " x " + C[0].length);
@@ -83,4 +83,9 @@ public class JFastEmdVsEarthMoversPerformanceTestsMain {
 telmomenezes:   15.567s = 100.0%
 crtomirmajer:    7.592s =  48.8%
 wilbur:          6.413s =  41.2%
+
+ * Results on i7 Laptop (for repeat = 10000):
+telmomenezes:   12.744s = 100.0%
+crtomirmajer:    5.967s =  46.8%
+wilbur:          5.019s =  39.4%
 */
