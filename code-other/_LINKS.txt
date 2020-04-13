@@ -19,4 +19,7 @@
 	https://github.com/antifriz/hungarian-algorithm-n3/blob/master/src/HungarianAlgorithm.cs
 	https://ifors.ms.unimelb.edu.au/tutorial/hungarian/welcome_frame.html
 	
+	https://github.com/dkoslicki/EMDeBruijn/tree/master/FastEMD
+	https://github.com/tillhainbach/FastEMD ***
 	
+	https://github.com/wmayner/pyemd
